@@ -47,6 +47,7 @@ object LoadMessages {
 
   // worker's loadPool to worker [to tell worker current thread has been written, and should be combine]
   // worker to master [to tell master combine this directory]
+  // TODO: Rename this to `ParquetWriterClosed`
   case class CloseParquet(fileStamp: Long)
 
   /** bgp message **/

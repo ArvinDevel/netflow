@@ -93,7 +93,7 @@ final class LoaderService(private val bufferList: WrapBufferQueue, private val c
       private var packageCount = 0
 
       // write data to parquet
-      private val writer = new ParquetWriterWrapper(conf)
+      private val writer = new ParquetWriterWrapper(null, conf) // TODO
 
       private def getCurrentRate: Double = {
         val rate = 1.0 * packageCount / (System.currentTimeMillis() - startTime)

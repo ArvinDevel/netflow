@@ -21,14 +21,15 @@ package cn.ac.ict.acs.netflow.load.worker
 import java.io.{IOException, FileNotFoundException}
 
 import _root_.parquet.hadoop.{ParquetFileWriter, ParquetFileReader}
+
+import akka.actor.ActorSelection
+
 import org.apache.hadoop.fs.{PathFilter, Path, FileSystem}
 
-import akka.actor.{ActorSelection, ActorRef}
-
+import cn.ac.ict.acs.netflow.load
 import cn.ac.ict.acs.netflow.load.{CombineStatus, LoadConf}
 import cn.ac.ict.acs.netflow.load.LoadMessages.CombineFinished
 import cn.ac.ict.acs.netflow.{NetFlowException, NetFlowConf, Logging}
-import cn.ac.ict.acs.netflow.util.TimeUtils
 
 /**
  * Combine the parquet directory
@@ -43,7 +44,7 @@ class CombineService(val timestamp: Long, val master: ActorSelection, val conf: 
     val FINISH, FAIL, WAIT = Value
   }
 
-  val dirPathStr = TimeUtils getTimeBasePathBySeconds(timestamp, conf)
+  val dirPathStr = load.getPathByTime(timestamp, conf)
   setName(s"Combine server on directory $dirPathStr ")
 
   override def run(): Unit = {
