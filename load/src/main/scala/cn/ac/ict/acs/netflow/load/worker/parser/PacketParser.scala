@@ -102,6 +102,8 @@ object PacketParser {
           override def next() = {
             curEndPos = curStartPos + packet.getShort(curStartPos + 2)
             curDFS.update(curStartPos, curEndPos, curTemp)
+            curStartPos = curEndPos
+            curDFS
           }
         }
         (dfsIter, nfTime)
