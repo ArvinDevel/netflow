@@ -82,6 +82,7 @@ class Template(val tmpId: Int, val fieldsCount: Int) {
     key_value.foreach(x => {
       keys(i) = x._1
       values(i) = x._2
+      rowLength += x._2
       i += 1
     })
     this
