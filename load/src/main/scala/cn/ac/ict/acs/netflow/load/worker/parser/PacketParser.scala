@@ -21,8 +21,6 @@ package cn.ac.ict.acs.netflow.load.worker.parser
 import java.nio.ByteBuffer
 import java.util.concurrent.ConcurrentHashMap
 
-import cn.ac.ict.acs.netflow.NetFlowException
-
 object PacketParser {
   val templates = new ConcurrentHashMap[TemplateKey, Template]
 

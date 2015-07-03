@@ -19,11 +19,11 @@
 package cn.ac.ict.acs.netflow.load.worker.parser
 
 import java.nio.ByteBuffer
-import java.util.concurrent.ConcurrentHashMap
+import java.util.Arrays
 
 case class TemplateKey(routerIp: Array[Byte], templateId: Int) {
   override def hashCode(): Int = {
-    java.util.Arrays.hashCode(routerIp) + templateId
+    Arrays.hashCode(routerIp) * 41 + templateId
   }
 
   override def equals(obj: scala.Any): Boolean = {
