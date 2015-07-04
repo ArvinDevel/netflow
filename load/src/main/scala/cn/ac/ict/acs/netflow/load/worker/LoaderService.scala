@@ -22,7 +22,7 @@ import java.util
 
 import akka.actor.ActorRef
 import cn.ac.ict.acs.netflow.load.worker.parser.PacketParser._
-import cn.ac.ict.acs.netflow.{ Logging, NetFlowConf }
+import cn.ac.ict.acs.netflow.{NetFlowException, Logging, NetFlowConf}
 import cn.ac.ict.acs.netflow.load.worker.parquet.ParquetWriterWrapper
 import cn.ac.ict.acs.netflow.util.ThreadUtils
 import scala.collection._
@@ -145,13 +145,15 @@ final class LoaderService(
               val dfs = flowSets.next().getRows
               writer.write(dfs, packetTime)
             }
-
           }
         } catch {
           case e: InterruptedException =>
             logError(e.getMessage)
             e.printStackTrace()
           case e: Exception =>
+            logError(e.getMessage)
+            e.printStackTrace()
+          case e: NetFlowException =>
             logError(e.getMessage)
             e.printStackTrace()
         } finally {

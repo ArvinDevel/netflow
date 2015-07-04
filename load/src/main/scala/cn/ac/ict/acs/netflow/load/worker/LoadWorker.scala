@@ -29,12 +29,10 @@ import akka.actor._
 import akka.remote.{ DisassociatedEvent, RemotingLifecycleEvent }
 
 import org.joda.time.DateTime
-
 import cn.ac.ict.acs.netflow._
 import cn.ac.ict.acs.netflow.load.{ LoadConf, LoadMessages }
 import cn.ac.ict.acs.netflow.util._
 import cn.ac.ict.acs.netflow.metrics.MetricsSystem
-
 
 class LoadWorker(
   host: String,

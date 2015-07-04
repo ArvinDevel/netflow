@@ -48,11 +48,9 @@ import cn.ac.ict.acs.netflow.load.worker.{ RowHeader, Row, MutableRow }
  * |           record m field n         |
  * --------------------------------------
  */
-class DataFlowSet (
-  val bb: ByteBuffer,
-  val packetTime: Long,
-  val routerIp: Array[Byte],
-  val version: Int) {
+class DataFlowSet(val bb: ByteBuffer,
+                  val packetTime: Long, val routerIp: Array[Byte],
+                  val version: Int) {
 
   private var startPos = 0
   private var endPos = 0

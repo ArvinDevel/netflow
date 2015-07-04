@@ -192,10 +192,15 @@ class MasterService(val master: ActorRef, val conf: NetFlowConf)
 
       // delete dead worker
       CommandSet.getDeadWorker(data) match {
-        case Some(result) => master ! DeleWorker(result._1, result._2)
+        case Some(result) => {
+          logDebug(s"Tell master to delete unreachable ip ${result._1}:${result._2}")
+          master ! DeleWorker(result._1, result._2)
+        }
         case None =>
       }
-      master ! RequestWorker(getRemoteIp(curChannel))
+      val remoteIP = getRemoteIp(curChannel)
+      logDebug(s"Tell master request a worker ip for $remoteIP")
+      master ! RequestWorker(remoteIP)
     }
   }
 

@@ -84,6 +84,7 @@ class Template(val tmpId: Int, val fieldsCount: Int) {
       values(i) = x._2
       rowLength += x._2
       i += 1
+      rowLength += x._2
     })
     this
   }

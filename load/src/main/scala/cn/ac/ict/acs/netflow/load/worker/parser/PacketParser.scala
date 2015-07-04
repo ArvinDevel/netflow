@@ -24,6 +24,7 @@ import java.util.concurrent.ConcurrentHashMap
 object PacketParser {
   val templates = new ConcurrentHashMap[TemplateKey, Template]
 
+  var tmp_test: Int = 0
   /**
    *
    * @param packet
@@ -90,7 +91,9 @@ object PacketParser {
                 curStartPos += fsLen
               } else if (fsId > 255) { // data flow set
                 curTemp = templates.get(TemplateKey(routerIp, fsId))
-                if (curTemp == null) curStartPos += fsLen
+                if (curTemp == null) {
+                  curStartPos += fsLen
+                }
               }
               if (curStartPos == packet.limit()) return false
             }
@@ -127,7 +130,7 @@ object PacketParser {
       templates.put(tempKey, template)
       curStartPos += tempFields * 4
     }
-
+    tmp_test += 1
     stopPos
   }
 }
