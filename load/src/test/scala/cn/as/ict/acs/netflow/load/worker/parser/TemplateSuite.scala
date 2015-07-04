@@ -7,7 +7,6 @@ import org.scalatest.{Matchers, FunSuite}
 import cn.ac.ict.acs.netflow.load.worker.parser.TemplateKey
 import cn.ac.ict.acs.netflow.util.IPUtils
 
-
 case class TemplateKey2(routerIp: Array[Byte], templateId: Int)
 
 class TemplateSuite extends FunSuite with Matchers {
