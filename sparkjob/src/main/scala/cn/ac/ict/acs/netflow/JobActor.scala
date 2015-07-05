@@ -104,7 +104,7 @@ class JobActor(
 
       if (resultTracker != null) {
         val schema = result.toString
-        val sample = result.head(10).map(_.toString)
+        val sample = new Array[String](0) // result.head(10).map(_.toString)
         val outputCount = 0 // result.count()
         resultTracker ! JobResult(jobId, ResultDetail(schema, sample, outputCount))
       }
