@@ -412,6 +412,8 @@
             <exclude>docs/**</exclude>
             <exclude>conf/**</exclude>
             <exclude>docker/**</exclude>
+            <exclude>collector/**</exclude>
+            <exclude>dist/**</exclude>
           </excludes>
         </configuration>
       </plugin>
