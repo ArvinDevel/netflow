@@ -22,14 +22,13 @@ import scala.collection.JavaConversions._
 
 import com.codahale.metrics.{ Gauge, MetricRegistry }
 
-import cn.ac.ict.acs.netflow.metrics.source.Source
 import org.apache.hadoop.fs.FileSystem
+
+import cn.ac.ict.acs.netflow.metrics.source.Source
 
 class LoadWorkerSource(val worker: LoadWorker) extends Source {
   override val metricRegistry = new MetricRegistry()
   override val sourceName = "loadworker"
-
-  import MetricRegistry._
 
   private def fileStats(scheme: String): Option[FileSystem.Statistics] =
     FileSystem.getAllStatistics.find(s => s.getScheme.equals(scheme))
@@ -41,25 +40,25 @@ class LoadWorkerSource(val worker: LoadWorker) extends Source {
     })
   }
 
-  metricRegistry.register(name("loadServer", "activeLoaders"), new Gauge[Int] {
+  metricRegistry.register("loadThreadNum", new Gauge[Int] {
     override def getValue: Int = worker.loadServer.curThreadsNum
   })
 
-  metricRegistry.register(name("threadPool-Status", "currestSize"), new Gauge[Int] {
+  metricRegistry.register("loadBufferSize", new Gauge[Int] {
     override def getValue: Int = worker.netflowBuff.currSize
   })
-  metricRegistry.register(name("threadPool-Status", "maxSize"), new Gauge[Int] {
+  metricRegistry.register("loadBufferCapacity", new Gauge[Int] {
     override def getValue: Int = worker.netflowBuff.maxQueueNum
   })
-  metricRegistry.register(name("threadPool-Status", "currentUsageRate"), new Gauge[Double] {
+  metricRegistry.register("loadBufferUsageRatio", new Gauge[Double] {
     override def getValue: Double = worker.netflowBuff.currUsageRate()
   })
 
-  metricRegistry.register(name("threadPool-Rate", "enqueueRate"), new Gauge[Double] {
+  metricRegistry.register("dataReceptionRate", new Gauge[Double] {
     override def getValue: Double = worker.netflowBuff.enqueueRate
   })
 
-  metricRegistry.register(name("threadPool-Rate", "dequeueRate"), new Gauge[Double] {
+  metricRegistry.register("dataProcessingRate", new Gauge[Double] {
     override def getValue: Double = worker.netflowBuff.dequeueRate
   })
 
