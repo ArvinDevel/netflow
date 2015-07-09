@@ -31,15 +31,6 @@ case class Subnet(start: Int, end: Int, name: String) {
   def map(target: Int): String = if (target <= end) name else null
 }
 
-abstract class NetFlowUDF[T, RT] {
-
-  def name: String
-
-  def eval(input: T): RT
-
-  def udfRegister(sqlContext: SQLContext): Unit
-}
-
 /**
  *
  * @param jobId

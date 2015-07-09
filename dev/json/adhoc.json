@@ -2,11 +2,11 @@
   "jobName": "xyz",
   "jobType": "adhoc",
   "jobQuery": {
-    "sql": "select subnetmap(ipv4_src_addr), subnetmap(ipv4_dst_addr), count(1) from t group by subnetmap(ipv4_src_addr), subnetmap(ipv4_dst_addr)",
+    "sql": "select subnetmap(ipv4_src_addr), subnetmap(ipv4_dst_addr), count(1) from t where (year=2015 and month=07 and day=07 and hr <=21) group by subnetmap(ipv4_src_addr), subnetmap(ipv4_dst_addr)",
     "functions": [
       {
         "name": "subnetmap",
-        "inputPath": "/Users/yijie/code/spark/sql/core/src/test/resources/subnet.txt",
+        "inputPath": "/home/netflow/package/netflow-1.0-SNAPSHOT-bin/subnet.txt",
         "format": "kv"
       }
     ]

@@ -1,0 +1,14 @@
+{
+  "jobName": "xyz",
+  "jobType": "adhoc",
+  "jobQuery": {
+    "sql": "select ipv4_dst_addr, count(1) from t where ipv4_dst_addr = ipv4('192.168.1.1') group by ipv4_dst_addr",
+    "functions": [
+      {
+        "name": "ipv4",
+        "inputPath": "",
+        "format": "192.168.1.1"
+      }
+    ]
+  }
+}

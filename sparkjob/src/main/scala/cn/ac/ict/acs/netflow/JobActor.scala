@@ -97,6 +97,8 @@ class JobActor(
           case "subnetmap" =>
             SubnetMapping(jobId, getFileName(func.inputPath),
               conf.get("spark.hadoop.fs.default.name")).udfRegister(sqlContext)
+          case "ipv4" =>
+            IPv4(func.format).udfRegister(sqlContext)
         }
       }
 

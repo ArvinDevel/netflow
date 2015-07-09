@@ -592,9 +592,11 @@ class QueryMaster(
 
     if (desc.query.functions != null) {
       desc.query.functions.map(_.inputPath).foreach { pathStr =>
-        val localPath = new Path(pathStr)
-        fs.copyFromLocalFile(false, true, localPath,
-          new Path(s"/netflow_tmp/$id/${localPath.getName}"))
+        if (pathStr.length != 0) {
+          val localPath = new Path(pathStr)
+          fs.copyFromLocalFile(false, true, localPath,
+            new Path(s"/netflow_tmp/$id/${localPath.getName}"))
+        }
       }
     }
 
