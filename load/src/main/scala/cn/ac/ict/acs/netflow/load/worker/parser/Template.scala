@@ -39,6 +39,7 @@ case class TemplateKey(routerIp: Array[Byte], templateId: Int) {
 class Template(val tmpId: Int, val fieldsCount: Int) {
 
   var rowLength = 0
+  // TODO: could we replace these two with a linkedHashMap?
   val keys = new Array[Int](fieldsCount)
   val values = new Array[Int](fieldsCount)
 

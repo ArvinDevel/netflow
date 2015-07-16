@@ -94,10 +94,34 @@ class WrapBufferQueue(
 
   WrapBufferQueue.registerScheduled(this) // statistic rate by Daemon thread
 
+  private var _previousPacket: ByteBuffer = null
+  private var _currentPacket: ByteBuffer = null
+
+  val lock = new Object
+
+  /**
+   * User of this method should guarantee not to change the buffer's state
+   * since it is shared with another parquet writer thread
+   * @return
+   */
+  def currentPacket: ByteBuffer = {
+    lock.synchronized {
+      while (_currentPacket == null || _previousPacket == _currentPacket) {
+        lock.wait()
+      }
+    }
+    _previousPacket = _currentPacket
+    _currentPacket
+  }
+
   // get the element from queue , block when the queue is empty
-  def take = {
+  def take() = {
     val data = bufferQueue.take()
     dequeueCount += data.limit()
+    _currentPacket = data
+    lock.synchronized {
+      lock.notify()
+    }
     data
   }
 

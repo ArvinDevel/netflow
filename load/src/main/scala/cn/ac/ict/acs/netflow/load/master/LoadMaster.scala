@@ -91,6 +91,8 @@ class LoadMaster(masterHost: String, masterPort: Int, webUiPort: Int, val conf: 
   // receiver : worker => 1 : n
   val collectorToWorkers = new mutable.HashMap[String, ArrayBuffer[String]]()
 
+  val workerToStreamingPort = new mutable.HashMap[String, Int]()
+
   private val halfLimit = 0.5
   private val warnLimit = 0.7
 
@@ -262,6 +264,14 @@ class LoadMaster(masterHost: String, masterPort: Int, webUiPort: Int, val conf: 
     case DeleteSingleRule(ruleId) =>
       sender ! DeletedRule(forwardingRules.remove(ruleId))
       notifyRulesToAllCollectors()
+
+    case StreamingWorkerPort(workerId, port) =>
+      if (idToWorker.contains(workerId)) {
+        logInfo(s"worker $workerId is listening at $port for incoming streaming connection")
+        workerToStreamingPort(workerId) = port
+      } else {
+        logInfo(s"StreamingPort register from a unknown worker, just ignore it")
+      }
   }
 
   // **********************************************************************************

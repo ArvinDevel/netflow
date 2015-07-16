@@ -78,6 +78,12 @@ object LoadMessages {
    */
   case class ruleMessage(rules: ArrayBuffer[Rule])
   case class updateRule(timeStamp: Long, key: String, value: String)
+
+  /**
+   * misc message
+   */
+  case class StreamingPort(port: Int)
+  case class StreamingWorkerPort(workerIP: String, port: Int)
 }
 
 object CombineStatus extends Enumeration {

@@ -30,7 +30,6 @@ object PacketParser {
    * @param packet
    * @return (Iterator[FlowSet] , PacketTime)
    */
-  // def parse(packet: ByteBuffer): (Iterator[DataFlowSet], Long) = {
   def parse(packet: ByteBuffer): (Iterator[DataFlowSet], Long) = {
 
     // 1. router ip

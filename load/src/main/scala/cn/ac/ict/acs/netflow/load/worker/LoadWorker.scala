@@ -22,6 +22,8 @@ import java.net.InetAddress
 import java.util
 import java.util.UUID
 
+import cn.ac.ict.acs.netflow.load.worker.tcp.StreamingServer
+
 import scala.util.Random
 import scala.concurrent.duration._
 
@@ -114,6 +116,8 @@ class LoadWorker(
   // receiver Service
   val receiverServer = new Receiver(netflowBuff, conf)
 
+  var streamServer: ActorRef = null
+
   // whole load thread's current combine file timestamp
   private var combineTimeStamp: Long = _
 
@@ -132,6 +136,7 @@ class LoadWorker(
     logInfo(s"[Netflow] Init write parquet pool, and will start $defaultWriterNum threads")
     loadServer.initParquetWriterPool(defaultWriterNum)
     receiverServer.start()
+    streamServer = context.actorOf(Props(classOf[StreamingServer], netflowBuff))
 
     registerWithMaster()
     metricsSystem.registerSource(workerSource)
@@ -224,6 +229,9 @@ class LoadWorker(
      */
     case updateBGP(bgpIds, bgpDatas) =>
       updateBGP(bgpIds, bgpDatas)
+
+    case StreamingPort(port) =>
+      master ! StreamingWorkerPort(workerId, port)
   }
 
   private def changeMaster(url: String, webUrl: String): Unit = {
