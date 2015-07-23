@@ -44,4 +44,12 @@ object JobMessages {
   case class GetJobResult(jobId: String) extends JobMessages
 
   case class ResultDetail(schema: String, result: Array[String], totalLines: Long)
+
+  // DDoS detection related
+  case object GetAllLoaders extends JobMessages
+
+  case class LoadInfo(ip: String, streamingPort: Int)
+
+  case class AllLoadersAvailable(infos: Seq[LoadInfo]) extends JobMessages
+
 }

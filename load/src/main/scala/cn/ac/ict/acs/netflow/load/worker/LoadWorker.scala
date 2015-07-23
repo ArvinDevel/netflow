@@ -116,7 +116,7 @@ class LoadWorker(
   // receiver Service
   val receiverServer = new Receiver(netflowBuff, conf)
 
-  var streamServer: ActorRef = null
+  val streamingServer = new StreamingServer(netflowBuff, conf)
 
   // whole load thread's current combine file timestamp
   private var combineTimeStamp: Long = _
@@ -136,7 +136,7 @@ class LoadWorker(
     logInfo(s"[Netflow] Init write parquet pool, and will start $defaultWriterNum threads")
     loadServer.initParquetWriterPool(defaultWriterNum)
     receiverServer.start()
-    streamServer = context.actorOf(Props(classOf[StreamingServer], netflowBuff))
+    streamingServer.start()
 
     registerWithMaster()
     metricsSystem.registerSource(workerSource)
@@ -229,9 +229,6 @@ class LoadWorker(
      */
     case updateBGP(bgpIds, bgpDatas) =>
       updateBGP(bgpIds, bgpDatas)
-
-    case StreamingPort(port) =>
-      master ! StreamingWorkerPort(workerId, port)
   }
 
   private def changeMaster(url: String, webUrl: String): Unit = {
@@ -271,7 +268,7 @@ class LoadWorker(
       logInfo("[Netflow] Connecting to Load Master " + masterAkkaUrl + "...")
       val actor = context.actorSelection(masterAkkaUrl)
       actor ! RegisterWorker(workerId, host, port, cores, memory,
-        webUiPort, workerIP, receiverServer.port)
+        webUiPort, workerIP, receiverServer.port, streamingServer.port)
     }
   }
 
@@ -310,7 +307,7 @@ class LoadWorker(
          */
         if (master != null) {
           master ! RegisterWorker(workerId, host, port, cores, memory, webUiPort,
-            workerIP, receiverServer.port)
+            workerIP, receiverServer.port, streamingServer.port)
         } else {
           // We are retrying the initial registration
           tryRegisterAllMasters()

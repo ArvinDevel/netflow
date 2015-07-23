@@ -118,7 +118,7 @@ class WrapBufferQueue(
   def take() = {
     val data = bufferQueue.take()
     dequeueCount += data.limit()
-    _currentPacket = data
+    _currentPacket = data.duplicate()
     lock.synchronized {
       lock.notify()
     }

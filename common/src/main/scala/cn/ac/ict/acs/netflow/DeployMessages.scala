@@ -47,7 +47,8 @@ object DeployMessages {
       memory: Int,
       webUiPort: Int,
       workerIP: String,                      
-      tcpPort:Int)
+      tcpPort:Int,
+      streamingPort: Int)
     extends DeployMessage {
     Utils.checkHost(host, "Required hostname")
     assert (port > 0 && tcpPort > 0)

@@ -20,6 +20,7 @@ package cn.ac.ict.acs.netflow.load.master
 
 import java.nio.ByteBuffer
 
+import cn.ac.ict.acs.netflow.JobMessages.{LoadInfo, AllLoadersAvailable, GetAllLoaders}
 import cn.ac.ict.acs.netflow.load.master.CommandSet.CmdStruct
 import cn.ac.ict.acs.netflow.metrics.MetricsSystem
 import org.joda.time.DateTime
@@ -166,7 +167,8 @@ class LoadMaster(masterHost: String, masterPort: Int, webUiPort: Int, val conf: 
       System.exit(0)
     }
 
-    case RegisterWorker(id, workHost, workPort, cores, memory, webUiPort, workerIP, tcpPort) => {
+    case RegisterWorker(
+        id, workHost, workPort, cores, memory, webUiPort, workerIP, tcpPort, streamingPort) => {
       logInfo("Registering %s %s:%d with %d cores, %s RAM".format(
         id, workHost, workPort, cores, Utils.megabytesToString(memory)))
 
@@ -176,7 +178,7 @@ class LoadMaster(masterHost: String, masterPort: Int, webUiPort: Int, val conf: 
         sender ! RegisterWorkerFailed("Duplicate worker ID")
       } else {
         val worker = new LoadWorkerInfo(id, workHost, workPort, cores, memory, sender(),
-          webUiPort, workerIP, tcpPort)
+          webUiPort, workerIP, tcpPort, streamingPort)
         if (registerWorker(worker)) {
           persistenceEngine.addWorker(worker)
           sender ! RegisteredWorker(loadMasterUrl, loadMasterWebUIUrl)
@@ -265,13 +267,10 @@ class LoadMaster(masterHost: String, masterPort: Int, webUiPort: Int, val conf: 
       sender ! DeletedRule(forwardingRules.remove(ruleId))
       notifyRulesToAllCollectors()
 
-    case StreamingWorkerPort(workerId, port) =>
-      if (idToWorker.contains(workerId)) {
-        logInfo(s"worker $workerId is listening at $port for incoming streaming connection")
-        workerToStreamingPort(workerId) = port
-      } else {
-        logInfo(s"StreamingPort register from a unknown worker, just ignore it")
-      }
+    case GetAllLoaders =>
+      val infos = ArrayBuffer.empty[LoadInfo]
+      workers.foreach(worker => infos += LoadInfo(worker.ip, worker.streamPort))
+      sender ! AllLoadersAvailable(infos.toSeq)
   }
 
   // **********************************************************************************

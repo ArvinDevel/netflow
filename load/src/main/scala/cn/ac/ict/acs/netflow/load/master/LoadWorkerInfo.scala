@@ -31,7 +31,8 @@ class LoadWorkerInfo(
   val actor: ActorRef,
   val webUiPort: Int,
   val ip: String,
-  val tcpPort: Int)
+  val tcpPort: Int,
+  val streamPort: Int)
     extends Serializable {
 
   Utils.checkHost(host, "Expected hostname")
