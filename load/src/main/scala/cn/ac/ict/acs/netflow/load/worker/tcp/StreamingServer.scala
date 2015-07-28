@@ -18,13 +18,11 @@
  */
 package cn.ac.ict.acs.netflow.load.worker.tcp
 
-import java.io.IOException
 import java.net.{ServerSocket, InetSocketAddress}
 import java.nio.ByteBuffer
 import java.nio.channels._
 
 import scala.collection.mutable
-import scala.util.control.Breaks._
 
 import cn.ac.ict.acs.netflow.{NetFlowException, NetFlowConf, Logging}
 import cn.ac.ict.acs.netflow.load.worker.WrapBufferQueue
@@ -80,7 +78,8 @@ class StreamingServer(queue: WrapBufferQueue, conf: NetFlowConf) extends Thread 
             iter.remove()
           }
         } catch {
-          case e: IOException =>
+          case e: Throwable =>
+            logWarning(s"Exception occurs during runtime: ${e.getStackTraceString}")
           // TODO
         }
       }
@@ -127,7 +126,7 @@ class StreamingServer(queue: WrapBufferQueue, conf: NetFlowConf) extends Thread 
         channel.write(buffer)
       }
     } catch {
-      case e: NetFlowException =>
+      case e: Throwable =>
         logWarning(s"Error occurs while writing packets: ${e.getMessage}")
         close(sk)
     }

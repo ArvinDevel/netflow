@@ -18,13 +18,12 @@
  */
 package cn.ac.ict.acs.netflow.streaming
 
-import org.apache.spark.rdd.RDD
-import org.apache.spark.streaming.{Seconds, Minutes, StreamingContext}
-import org.apache.spark.{SparkConf, SparkContext}
-
 import scala.concurrent.Future
 
 import akka.actor.{ActorSelection, Actor, Props}
+
+import org.apache.spark.streaming.{Seconds, Minutes, StreamingContext}
+import org.apache.spark.SparkConf
 
 import cn.ac.ict.acs.netflow.{JobMessages, Logging, NetFlowConf}
 import cn.ac.ict.acs.netflow.util.{ActorLogReceive, AkkaUtils, Utils}
@@ -55,20 +54,27 @@ class DDoSJobActor(loadMasterUrl: String) extends Actor with ActorLogReceive wit
     val receivers = loaderInfos.map(info => new DDoSReceiver(info.ip, info.streamingPort))
     val allStreams = ssc.union(receivers.map(ssc.receiverStream(_)))
 
+    val iafvc = new IAFVC(0.1, 0.01)
+
     // DDoS detection logic goes here
     // the fake ones:
     allStreams.foreachRDD { rdd =>
 
-      // create case class iafv
+      println(s"===================${rdd.count()}=====================")
 
-      println("====================")
-      println(rdd.count())
-      println("====================")
-
-
-
+      val features = iafvc.getFeatures(rdd)
+      if (features != null) {
+        for (i <- 0 to (features.size - 1)) {
+          for (j <- 0 to (features(i).size - 1)) {
+            print(features(i)(j))
+            print(" ")
+          }
+          println("")
+        }
+      } else {
+        println("============get no features==============")
+      }
     }
-
 
     ssc.start()
     ssc.awaitTermination()

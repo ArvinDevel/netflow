@@ -21,13 +21,23 @@ package cn.ac.ict.acs.netflow.streaming
 import java.net.InetSocketAddress
 import java.nio.ByteBuffer
 import java.nio.channels.SocketChannel
+import java.text.SimpleDateFormat
+import java.util.Date
 
+import cn.ac.ict.acs.netflow.util.IPUtils
 import org.apache.spark.storage.StorageLevel
 import org.apache.spark.streaming.receiver.Receiver
 
 import cn.ac.ict.acs.netflow.{NetFlowException, Logging}
 
-case class Record(time: Long, srcIp: Array[Byte], dstIp: Array[Byte])
+case class Record(time: Long, srcIp: Array[Byte], dstIp: Array[Byte]) {
+
+  val format = new SimpleDateFormat("HH:mm:ss.SSS")
+
+  def timeString = format.format(new Date(time))
+  def srcIPString = IPUtils.toString(srcIp)
+  def dstIPString = IPUtils.toString(dstIp)
+}
 
 class DDoSReceiver(val host: String, val port: Int)
   extends Receiver[Record](StorageLevel.MEMORY_AND_DISK_2)

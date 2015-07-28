@@ -18,9 +18,10 @@
  */
 package cn.ac.ict.acs.netflow.streaming
 
+import org.apache.log4j.Logger
+import org.apache.log4j.Level
+
 import org.apache.spark.SparkConf
-import org.apache.spark.rdd.RDD
-import org.apache.spark.streaming.dstream.ReceiverInputDStream
 import org.apache.spark.streaming.{Minutes, Seconds, StreamingContext}
 
 
@@ -28,16 +29,28 @@ object SStreamingTest {
 
   def main(args: Array[String]) {
     val conf = new SparkConf().setMaster("local[4]").setAppName("customized_receiver")
-    val ssc = new StreamingContext(conf, Minutes(1))
-    val netflowStream = ssc.receiverStream(new DDoSReceiver("10.30.1.154", 52318))
+    Logger.getLogger("org").setLevel(Level.OFF)
+    Logger.getLogger("akka").setLevel(Level.OFF)
+    val ssc = new StreamingContext(conf, Seconds(1))
+    val netflowStream = ssc.receiverStream(new DDoSReceiver("192.168.0.128", 51203))
+    val iafvc = new IAFVC(0.1, 0.01)
+
     netflowStream.foreachRDD { rdd =>
 
-      // create case class iafv
+      println(s"===================${rdd.count()}=====================")
 
-
-      println("====================")
-      println(rdd.count())
-      println("====================")
+      val features = iafvc.getFeatures(rdd)
+      if (features != null) {
+        for (i <- 0 to (features.size - 1)) {
+          for (j <- 0 to (features(i).size - 1)) {
+            print(features(i)(j))
+            print(" ")
+          }
+          println("")
+        }
+      } else {
+        println("============get no features==============")
+      }
     }
 
     ssc.start()
