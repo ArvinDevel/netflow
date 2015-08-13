@@ -22,8 +22,8 @@ import org.apache.log4j.Logger
 import org.apache.log4j.Level
 
 import org.apache.spark.SparkConf
+import org.apache.spark.mllib.classification.SVMModel
 import org.apache.spark.streaming.{Minutes, Seconds, StreamingContext}
-
 
 object SStreamingTest {
 
@@ -32,7 +32,9 @@ object SStreamingTest {
     Logger.getLogger("org").setLevel(Level.OFF)
     Logger.getLogger("akka").setLevel(Level.OFF)
     val ssc = new StreamingContext(conf, Seconds(1))
-    val netflowStream = ssc.receiverStream(new DDoSReceiver("192.168.0.128", 51203))
+    val sc = ssc.sparkContext
+    val model = SVMModel.load(sc,"/Users/yijie/Downloads/model")
+    val netflowStream = ssc.receiverStream(new DDoSReceiver("192.168.0.128", 60528))
     val iafvc = new IAFVC(0.1, 0.01)
 
     netflowStream.foreachRDD { rdd =>
