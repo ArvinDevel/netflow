@@ -12,6 +12,7 @@
     <module>sparkjob</module>
     <module>load</module>
     <module>query</module>
+    <module>core</module>
     <module>assembly</module>
   </modules>
 
