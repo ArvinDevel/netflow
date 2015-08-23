@@ -28,7 +28,7 @@ import org.apache.parquet.hadoop.metadata.CompressionCodecName
 
 import cn.ac.ict.acs.netflow.{ Logging, NetFlowConf, load }
 import cn.ac.ict.acs.netflow.load.LoadConf
-import cn.ac.ict.acs.netflow.load.worker.{ Row, Writer }
+import cn.ac.ict.acs.netflow.load.worker.{DataFlowSet, Row, Writer}
 import cn.ac.ict.acs.netflow.util.Utils
 
 class TimelyParquetWriter(val id: Int, val timeBase: Long, val conf: NetFlowConf)
@@ -72,8 +72,8 @@ class TimelyParquetWriter(val id: Int, val timeBase: Long, val conf: NetFlowConf
     new Path(new Path(basePath, LoadConf.TEMP_DIRECTORY), fileName)
   }
 
-  val pw = new ParquetWriter[Row](outputFile,
-    new RowWriteSupport, compression, blockSize, pageSize,
+  val pw = new ParquetWriter[DataFlowSet](outputFile,
+    new FlowSetWriteSupport, compression, blockSize, pageSize,
     dictionaryPageSize, enableDictionary, validating,
     writerVersion, conf.hadoopConfiguration)
 
@@ -83,8 +83,8 @@ class TimelyParquetWriter(val id: Int, val timeBase: Long, val conf: NetFlowConf
 
   override def init() = {}
 
-  override def write(rowIter: Iterator[Row]) = {
-    rowIter.foreach(row => pw.write(row))
+  override def write(flowSet: DataFlowSet) = {
+    pw.write(flowSet)
   }
 
   override def close() = {

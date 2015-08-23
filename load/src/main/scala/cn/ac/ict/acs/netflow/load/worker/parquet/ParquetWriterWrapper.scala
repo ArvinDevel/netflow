@@ -24,7 +24,7 @@ import akka.actor.ActorRef
 import cn.ac.ict.acs.netflow.util.{ TimeUtils, ThreadUtils }
 import cn.ac.ict.acs.netflow.{ Logging, NetFlowConf, load }
 import cn.ac.ict.acs.netflow.load.LoadMessages.CloseParquet
-import cn.ac.ict.acs.netflow.load.worker.{ Row, Writer, WriterWrapper }
+import cn.ac.ict.acs.netflow.load.worker.{DataFlowSet, Row, Writer, WriterWrapper}
 
 import scala.collection._
 
@@ -68,7 +68,7 @@ class ParquetWriterWrapper(worker: ActorRef, conf: NetFlowConf)
 
   override def init(): Unit = {}
 
-  override def write(rowIter: Iterator[Row], packetTime: Long) = {
+  override def write(flowSet: DataFlowSet, packetTime: Long) = {
     val timeBase = load.getTimeBase(packetTime, conf)
     val writer = timeToWriters.getOrElseUpdate(timeBase, {
       val tbw = new TimelyParquetWriter(timeBase, conf)
@@ -76,7 +76,7 @@ class ParquetWriterWrapper(worker: ActorRef, conf: NetFlowConf)
       registerCloseScheduler(tbw, packetTime)
       tbw
     })
-    writer.write(rowIter)
+    writer.write(flowSet)
   }
 
   override def close() = {

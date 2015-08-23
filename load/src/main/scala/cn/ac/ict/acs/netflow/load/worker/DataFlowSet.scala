@@ -16,11 +16,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package cn.ac.ict.acs.netflow.load.worker.parser
+package cn.ac.ict.acs.netflow.load.worker
 
 import java.nio.ByteBuffer
 
-import cn.ac.ict.acs.netflow.load.worker.{ RowHeader, Row, MutableRow }
+import cn.ac.ict.acs.netflow.load.worker.parser.Template
 
 /**
  * Created by ayscb on 15-6-11.
@@ -48,18 +48,24 @@ import cn.ac.ict.acs.netflow.load.worker.{ RowHeader, Row, MutableRow }
  * |           record m field n         |
  * --------------------------------------
  */
-class DataFlowSet(val bb: ByteBuffer,
-                  val packetTime: Long, val routerIp: Array[Byte],
-                  val version: Int) {
+class DataFlowSet(
+    val bb: ByteBuffer,
+    val packetTime: Long,
+    val routerIp: Array[Byte],
+    val version: Int) {
 
-  private var startPos = 0
-  private var endPos = 0
-  private var template: Template = _
+  var _startPos = 0
+  var _endPos = 0
+  var _template: Template = _
+
+  def startPos: Int = _startPos
+  def endPos: Int = _endPos
+  def template: Template = _template
 
   def update(newStart: Int, newEnd: Int, newTemplate: Template): DataFlowSet = {
-    this.startPos = newStart
-    this.endPos = newEnd
-    this.template = newTemplate
+    this._startPos = newStart
+    this._endPos = newEnd
+    this._template = newTemplate
     this
   }
 
@@ -68,7 +74,7 @@ class DataFlowSet(val bb: ByteBuffer,
   def getRows: Iterator[Row] = {
 
     new Iterator[Row] {
-      var curRow = new MutableRow(bb, template)
+      var curRow = new MutableRow(bb, _template)
 
       if (routerIp.length == 4) {
         curRow.setHeader(new RowHeader(Array[Any](packetTime, routerIp, null)))
@@ -76,13 +82,13 @@ class DataFlowSet(val bb: ByteBuffer,
         curRow.setHeader(new RowHeader(Array[Any](packetTime, null, routerIp)))
       }
 
-      var curRowPos: Int = startPos + fsHeaderLen
+      var curRowPos: Int = _startPos + fsHeaderLen
 
-      def hasNext: Boolean = if (curRowPos == endPos) false else true
+      def hasNext: Boolean = if (curRowPos == _endPos) false else true
 
       def next() = {
         curRow.update(curRowPos)
-        curRowPos += template.rowLength
+        curRowPos += _template.rowLength
         curRow
       }
     }

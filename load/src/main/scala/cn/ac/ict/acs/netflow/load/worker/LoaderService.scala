@@ -142,8 +142,8 @@ final class LoaderService(
             packageCount += 1
             val (flowSets, packetTime) = parse(data)
             while (flowSets.hasNext) {
-              val dfs = flowSets.next().getRows
-              writer.write(dfs, packetTime)
+              val fs = flowSets.next()
+              writer.write(fs, packetTime)
             }
           }
         } catch {

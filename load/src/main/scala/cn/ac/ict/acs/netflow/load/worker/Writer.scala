@@ -22,12 +22,12 @@ trait Writer {
   def id: Int
   def timeBase(): Long
   def init(): Unit
-  def write(rowIter: Iterator[Row]): Unit
+  def write(flowSet: DataFlowSet): Unit
   def close(): Unit
 }
 
 trait WriterWrapper {
   def init()
-  def write(rowIter: Iterator[Row], packetTime: Long)
+  def write(flowSet: DataFlowSet, packetTime: Long)
   def close()
 }

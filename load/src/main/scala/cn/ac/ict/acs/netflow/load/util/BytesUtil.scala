@@ -30,11 +30,27 @@ object BytesUtil {
     }
   }
 
+  def fieldAsLong(bb: ByteBuffer, length: Int): Long = {
+    if (bb.order == ByteOrder.BIG_ENDIAN) {
+      fieldAsBELong(bb, length)
+    } else {
+      fieldAsLELong(bb, length)
+    }
+  }
+
   def fieldAsInt(bb: ByteBuffer, start: Int, length: Int): Int = {
     if (bb.order == ByteOrder.BIG_ENDIAN) {
       fieldAsBEInt(bb, start, length)
     } else {
       fieldAsLEInt(bb, start, length)
+    }
+  }
+
+  def fieldAsInt(bb: ByteBuffer, length: Int): Int = {
+    if (bb.order == ByteOrder.BIG_ENDIAN) {
+      fieldAsBEInt(bb, length)
+    } else {
+      fieldAsLEInt(bb, length)
     }
   }
 
@@ -45,6 +61,16 @@ object BytesUtil {
     var result: Long = 0
     while (i < length) {
       result = bb.get(start + i) + result << 8
+      i += 1
+    }
+    result
+  }
+
+  def fieldAsBELong(bb: ByteBuffer, length: Int): Long = {
+    var i = 0
+    var result: Long = 0
+    while (i < length) {
+      result = bb.get + result << 8
       i += 1
     }
     result
@@ -61,6 +87,16 @@ object BytesUtil {
     result
   }
 
+  def fieldAsLELong(bb: ByteBuffer, length: Int): Long = {
+    var i = 0
+    var result: Long = 0
+    while (i < length) {
+      result += bb.get << (8 * i)
+      i += 1
+    }
+    result
+  }
+
   // BIG ENDIAN
   def fieldAsBEInt(bb: ByteBuffer, start: Int, length: Int): Int = {
     var i = 0
@@ -72,12 +108,32 @@ object BytesUtil {
     result
   }
 
+  def fieldAsBEInt(bb: ByteBuffer, length: Int): Int = {
+    var i = 0
+    var result: Int = 0
+    while (i < length) {
+      result = bb.get + result << 8
+      i += 1
+    }
+    result
+  }
+
   // LITTLE ENDIAN
   def fieldAsLEInt(bb: ByteBuffer, start: Int, length: Int): Int = {
     var i = 0
     var result: Int = 0
     while (i < length) {
       result = bb.get(start + i) << (8 * i)
+      i += 1
+    }
+    result
+  }
+
+  def fieldAsLEInt(bb: ByteBuffer, length: Int): Int = {
+    var i = 0
+    var result: Int = 0
+    while (i < length) {
+      result = bb.get << (8 * i)
       i += 1
     }
     result

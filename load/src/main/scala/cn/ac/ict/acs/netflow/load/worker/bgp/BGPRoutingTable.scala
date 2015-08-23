@@ -20,14 +20,14 @@ package cn.ac.ict.acs.netflow.load.worker.bgp
 
 object BGPRoutingTable {
 
-  type DST_ADDR = (Array[Byte], Array[Byte])
-
-  def search(dst_addr: DST_ADDR): BGPTuple = {
-    new BGPTuple(Array(
+  // we might want to separate v4 item from v6,
+  // if so, split into two methods and call them accordingly.
+  def search(dst_addr: Array[Byte]): Array[Any] = {
+    Array(
       "192.168.1.1".getBytes,
       "192.168.1.1".getBytes, null,
       "192.168.2.1".getBytes, null,
-      "as_path", "community", "adjacent_as", "self_as"))
+      "as_path", "community", "adjacent_as", "self_as")
   }
 
   def update(tuple: BGPTuple): Unit = ???
