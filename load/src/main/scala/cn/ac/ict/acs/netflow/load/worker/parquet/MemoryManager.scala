@@ -69,7 +69,7 @@ class MemoryManager(
 
   private val totalMemoryPool =
     ManagementFactory.getMemoryMXBean.getHeapMemoryUsage.getMax * memoryPoolRatio.round
-  log.info(s"[Netflow] Allocated total memory pool is: $totalMemoryPool")
+  log.info(s"Allocated total memory pool is: $totalMemoryPool")
 
   private val writerList = new mutable.HashMap[ParquetWriter[_], Long]
 

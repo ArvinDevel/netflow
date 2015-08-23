@@ -34,7 +34,8 @@ class MetricsSystem(
     val instance: String,
     conf: NetFlowConf) extends Logging {
 
-  private[this] val confFile = conf.get("netflow.metrics.conf", null)
+  private[this] val confFile = conf.get("netflow.metrics.conf",
+    "/Users/yijie/code/netflow/conf/metrics.properties")
   private[this] val metricsConfig = new MetricsConfig(Option(confFile))
 
   private val sinks = new mutable.ArrayBuffer[Sink]

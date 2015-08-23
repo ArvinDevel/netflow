@@ -105,8 +105,8 @@ class LoadMaster(masterHost: String, masterPort: Int, webUiPort: Int, val conf: 
   val waitQueue = new mutable.HashSet[String]()
 
   override def preStart(): Unit = {
-    logInfo(s"[Netflow] Starting NetFlow LoadMaster at $loadMasterUrl")
-    logInfo(s"[Netflow] Running NetFlow version ${cn.ac.ict.acs.netflow.NETFLOW_VERSION}")
+    logInfo(s"Starting NetFlow LoadMaster at $loadMasterUrl")
+    logInfo(s"Running NetFlow version ${cn.ac.ict.acs.netflow.NETFLOW_VERSION}")
 
     // Listen for remote client disconnection events, since they don't go through Akka's watch()
     context.system.eventStream.subscribe(self, classOf[RemotingLifecycleEvent])
@@ -764,10 +764,10 @@ class LoadMaster(masterHost: String, masterPort: Int, webUiPort: Int, val conf: 
 
           case None =>
             waitQueue += collector
-            logWarning(s"[Netflow] There is no available worker to run in cluster.")
+            logWarning(s"There is no available worker to run in cluster.")
         }
       case None =>
-        logWarning(s"[Netflow] The $collector Collector is not a effective collector.")
+        logWarning(s"The $collector Collector is not a effective collector.")
     }
   }
 
@@ -785,14 +785,14 @@ class LoadMaster(masterHost: String, masterPort: Int, webUiPort: Int, val conf: 
 
     loadServer.collector2Socket.get(receiverHost) match {
       case None =>
-        logError(s"[Netflow] There is no $receiverHost Receiver in 'collector2Socket'," +
+        logError(s"There is no $receiverHost Receiver in 'collector2Socket'," +
           s"so something must be wrong.")
 
       case Some(socket) =>
         if (socket.isConnected) {
           socket.write(res)
         } else {
-          logError(s"[Netfow] Can not connect with $receiverHost receiver")
+          logError(s"Can not connect with $receiverHost receiver")
         }
     }
   }
@@ -892,7 +892,7 @@ class LoadMaster(masterHost: String, masterPort: Int, webUiPort: Int, val conf: 
     //        workerToBufferRate.filterNot(x => x._1 == workerIP).toList.sortWith(_._2 < _._2)
     //      if (availableWorkers.isEmpty) {
     //        logInfo(String.format(
-    //          "[Netflow] Total worker number is %d (%s)," +
+    //          "Total worker number is %d (%s)," +
     //            "which are used by %s collector," +
     //            """so there is no available worker to adjust.""" +
     //            "Only to increase worker's thread.",

@@ -93,16 +93,6 @@ class RowWriteSupport extends WriteSupport[Row] with Logging {
     (null, null)
   }
 
-  private def writeNetFlowFields(bb: ByteBuffer, start: Int, template: Template) = {
-    var i = 0
-    var curStart = start
-    while (i < template.keys.length) {
-      writeField(template.keys(i), bb, curStart, template.values(i))
-      curStart += template.values(i)
-      i += 1
-    }
-  }
-
   private def writeSupplimentFields(ft: FieldType.Value, fields: Array[Any]): Unit = {
 
     val length = ft match {
@@ -128,6 +118,16 @@ class RowWriteSupport extends WriteSupport[Row] with Logging {
 
         writer.endField(tpe.getName, pos)
       }
+      i += 1
+    }
+  }
+
+  private def writeNetFlowFields(bb: ByteBuffer, start: Int, template: Template) = {
+    var i = 0
+    var curStart = start
+    while (i < template.keys.length) {
+      writeField(template.keys(i), bb, curStart, template.values(i))
+      curStart += template.values(i)
       i += 1
     }
   }

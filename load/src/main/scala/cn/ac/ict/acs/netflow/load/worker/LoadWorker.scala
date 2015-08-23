@@ -126,14 +126,14 @@ class LoadWorker(
 
   override def preStart(): Unit = {
     assert(!registered)
-    logInfo("[Netflow] Starting NetFlow loadWorker %s:%d with %d cores, %s RAM".format(
+    logInfo("Starting NetFlow loadWorker %s:%d with %d cores, %s RAM".format(
       host, port, cores, Utils.megabytesToString(memory)))
-    logInfo(s"[Netflow] Running NetFlow version ${cn.ac.ict.acs.netflow.NETFLOW_VERSION}")
+    logInfo(s"Running NetFlow version ${cn.ac.ict.acs.netflow.NETFLOW_VERSION}")
     context.system.eventStream.subscribe(self, classOf[RemotingLifecycleEvent])
 
     val defaultWriterNum = conf.getInt(LoadConf.WRITER_NUMBER, 2)
     
-    logInfo(s"[Netflow] Init write parquet pool, and will start $defaultWriterNum threads")
+    logInfo(s"Init write parquet pool, and will start $defaultWriterNum threads")
     loadServer.initParquetWriterPool(defaultWriterNum)
     receiverServer.start()
     streamingServer.start()
@@ -163,12 +163,12 @@ class LoadWorker(
 
     case RegisterWorkerFailed(message) =>
       if (!registered) {
-        logError("[Netflow] Worker registration failed: " + message)
+        logError("Worker registration failed: " + message)
         System.exit(1)
       }
 
     case ReconnectWorker(masterUrl) =>
-      logInfo(s"[Netflow] Master with url $masterUrl requested this worker to reconnect.")
+      logInfo(s"Master with url $masterUrl requested this worker to reconnect.")
       registerWithMaster()
 
     case ReregisterWithMaster =>
@@ -176,14 +176,14 @@ class LoadWorker(
 
     case MasterChanged(masterUrl, masterWebUrl) =>
       // Get this message because of master recovery
-      logInfo("[Netflow] Master has changed, new master is at " + masterUrl)
+      logInfo("Master has changed, new master is at " + masterUrl)
       changeMaster(masterUrl, masterWebUrl)
 
     case SendHeartbeat =>
       if (connected) master ! Heartbeat(workerId)
 
     case x: DisassociatedEvent if x.remoteAddress == masterAddress =>
-      logInfo(s"[Netflow] $x Disassociated !")
+      logInfo(s"$x Disassociated !")
       masterDisconnected()
 
     /**
@@ -258,14 +258,14 @@ class LoadWorker(
             INITIAL_REGISTRATION_RETRY_INTERVAL, self, ReregisterWithMaster)
         }
       case Some(_) =>
-        logInfo("[Netflow] Not spawning another attempt to register with the master," +
+        logInfo("Not spawning another attempt to register with the master," +
           " since there is an attempt scheduled already.")
     }
   }
 
   private def tryRegisterAllMasters() {
     for (masterAkkaUrl <- masterAkkaUrls) {
-      logInfo("[Netflow] Connecting to Load Master " + masterAkkaUrl + "...")
+      logInfo("Connecting to Load Master " + masterAkkaUrl + "...")
       val actor = context.actorSelection(masterAkkaUrl)
       actor ! RegisterWorker(workerId, host, port, cores, memory,
         webUiPort, workerIP, receiverServer.port, streamingServer.port)

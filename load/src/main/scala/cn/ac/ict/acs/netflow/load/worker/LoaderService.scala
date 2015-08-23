@@ -32,7 +32,7 @@ final class LoaderService(
     private val bufferList: WrapBufferQueue,
     private val conf: NetFlowConf) extends Logging {
 
-  private val writerThreadPool = ThreadUtils.newDaemonCachedThreadPool("loadService-writerPool")
+  private val writerThreadPool = ThreadUtils.newDaemonFixedThreadPool(1, "loadService-writerPool")
 
   private val writeThreadRate = new mutable.HashMap[Thread, Double]()
   private val RateCount = new java.util.concurrent.atomic.AtomicInteger()
@@ -50,7 +50,7 @@ final class LoaderService(
   def adjustWritersNum(newThreadNum: Int) = {
 
     val _curThreadsNum = curThreadsNum
-    logInfo(s"[Netflow] Current total resolving thread number is ${_curThreadsNum}, " +
+    logInfo(s"Current total resolving thread number is ${_curThreadsNum}, " +
       s" and will be adjust to $newThreadNum ")
 
     if (newThreadNum > _curThreadsNum) {
@@ -69,7 +69,7 @@ final class LoaderService(
   }
 
   def stopAllWriterThreads() = {
-    logInfo((" current threads number is %d, all " +
+    logInfo(("current threads number is %d, all " +
       "threads will be stopped").format(curThreadsNum))
     writeThreadRate.synchronized({
       writeThreadRate.keySet.foreach(_.interrupt())
@@ -116,7 +116,7 @@ final class LoaderService(
       }
 
       override def run(): Unit = {
-        logInfo("[Netflow] Start sub Write Parquet %d"
+        logInfo("Start sub Write Parquet %d"
           .format(Thread.currentThread().getId))
 
         writeThreadRate(Thread.currentThread()) = 0.0
