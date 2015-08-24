@@ -20,15 +20,18 @@ package cn.ac.ict.acs.netflow.load.worker.parquet
 
 import java.io.IOException
 import java.util.concurrent.atomic.AtomicInteger
+import java.util.logging.{Logger => JLogger}
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.Path
+import org.apache.parquet.{Log => ApacheParquetLog}
 import org.apache.parquet.column.ParquetProperties.WriterVersion
 import org.apache.parquet.hadoop.ParquetWriter
 import org.apache.parquet.hadoop.metadata.CompressionCodecName
+import org.slf4j.bridge.SLF4JBridgeHandler
 
 import cn.ac.ict.acs.netflow.{ Logging, NetFlowConf, load }
 import cn.ac.ict.acs.netflow.load.LoadConf
-import cn.ac.ict.acs.netflow.load.worker.{DataFlowSet, Row, Writer}
+import cn.ac.ict.acs.netflow.load.worker.{DataFlowSet, Writer}
 import cn.ac.ict.acs.netflow.util.Utils
 
 class TimelyParquetWriter(val id: Int, val timeBase: Long, val conf: NetFlowConf)
@@ -79,6 +82,37 @@ class TimelyParquetWriter(val id: Int, val timeBase: Long, val conf: NetFlowConf
 
   if (memoryManageEnable) {
     registerInMemManager(pw, blockSize, maxLoad, minAllocation)
+  }
+
+  // JUL loggers must be held by a strong reference, otherwise they may get destroyed by GC.
+  // However, the root JUL logger used by Parquet isn't properly referenced.  Here we keep
+  // references to loggers in both parquet-mr <= 1.6 and >= 1.7
+  val apacheParquetLogger: JLogger = JLogger.getLogger(classOf[ApacheParquetLog].getPackage.getName)
+  val parquetLogger: JLogger = JLogger.getLogger("parquet")
+
+  // Parquet initializes its own JUL logger in a static block which always prints to stdout.  Here
+  // we redirect the JUL logger via SLF4J JUL bridge handler.
+  val redirectParquetLogsViaSLF4J: Unit = {
+    def redirect(logger: JLogger): Unit = {
+      logger.getHandlers.foreach(logger.removeHandler)
+      logger.setUseParentHandlers(false)
+      logger.addHandler(new SLF4JBridgeHandler)
+    }
+
+    // For parquet-mr 1.7.0 and above versions, which are under `org.apache.parquet` namespace.
+    Class.forName(classOf[ApacheParquetLog].getName)
+    redirect(JLogger.getLogger(classOf[ApacheParquetLog].getPackage.getName))
+
+    // For parquet-mr 1.6.0 and lower versions bundled with Hive, which are under `parquet`
+    // namespace.
+    try {
+      Class.forName("parquet.Log")
+      redirect(JLogger.getLogger("parquet"))
+    } catch { case _: Throwable =>
+      // SPARK-9974: com.twitter:parquet-hadoop-bundle:1.6.0 is not packaged into the assembly jar
+      // when Spark is built with SBT. So `parquet.Log` may not be found.  This try/catch block
+      // should be removed after this issue is fixed.
+    }
   }
 
   override def init() = {}

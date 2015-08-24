@@ -32,7 +32,7 @@ final class LoaderService(
     private val bufferList: WrapBufferQueue,
     private val conf: NetFlowConf) extends Logging {
 
-  private val writerThreadPool = ThreadUtils.newDaemonFixedThreadPool(1, "loadService-writerPool")
+  private val writerThreadPool = ThreadUtils.newDaemonCachedThreadPool("loadService-writerPool")
 
   private val writeThreadRate = new mutable.HashMap[Thread, Double]()
   private val RateCount = new java.util.concurrent.atomic.AtomicInteger()

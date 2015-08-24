@@ -21,6 +21,8 @@ package cn.ac.ict.acs.netflow.load.worker.parser
 import java.nio.ByteBuffer
 import java.util.Arrays
 
+import cn.ac.ict.acs.netflow.load.worker.codegen.{GenerateFlowSetWriter, InnerWriter}
+
 case class TemplateKey(routerIp: Array[Byte], templateId: Int) {
   override def hashCode(): Int = {
     Arrays.hashCode(routerIp) * 41 + templateId
@@ -89,4 +91,6 @@ class Template(val tmpId: Int, val fieldsCount: Int) {
     })
     this
   }
+
+  lazy val writer: InnerWriter = GenerateFlowSetWriter.generate(this)
 }

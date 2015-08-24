@@ -74,7 +74,7 @@ object GenerateFlowSetWriter extends CodeGenerator[Template, InnerWriter] {
       }
     }
     """
-    println(code)
+//    println(code)
     compile(code).generate(in).asInstanceOf[InnerWriter]
   }
 
@@ -101,15 +101,15 @@ object GenerateFlowSetWriter extends CodeGenerator[Template, InnerWriter] {
       if (k != -1) {
         val (pos, tpe) = getPosAndType(FieldType.NETFLOW, k)
         val writeField = tpe.asPrimitiveType.getPrimitiveTypeName match {
-          case INT64 =>
-            s"consumer.addLong($bytesUtil.fieldAsLong(bb, $v));"
-          case INT32 =>
-            s"consumer.addInteger($bytesUtil.fieldAsInt(bb, $v));"
+          case INT64 => // network byte order is big-endian
+            s"consumer.addLong($bytesUtil.fieldAsBELong(bb, $v));"
+          case INT32 => // network byte order is big-endian
+            s"consumer.addInteger($bytesUtil.fieldAsBEInt(bb, $v));"
           case BINARY | FIXED_LEN_BYTE_ARRAY =>
             val bytes = ctx.freshName("bytes")
             s"""byte[] $bytes = new byte[$v];
-              bb.get($bytes, 0, $v);
-              consumer.addBinary(Binary.fromByteArray($bytes));"""
+            bb.get($bytes, 0, $v);
+            consumer.addBinary(Binary.fromByteArray($bytes));"""
         }
         s"""
           consumer.startField("${tpe.getName()}", $pos);
@@ -117,7 +117,7 @@ object GenerateFlowSetWriter extends CodeGenerator[Template, InnerWriter] {
           consumer.endField("${tpe.getName()}", $pos);
          """
       } else {
-        ""
+        s"          bb.position(bb.position() + $v);"
       }
     }.mkString("\n")
   }

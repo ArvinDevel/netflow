@@ -21,14 +21,13 @@ package cn.ac.ict.acs.netflow.metrics
 import java.util.Properties
 import java.util.concurrent.TimeUnit
 
-import cn.ac.ict.acs.netflow.metrics.sink.Sink
-import cn.ac.ict.acs.netflow.metrics.source.Source
-
 import scala.collection.mutable
 
 import com.codahale.metrics.MetricRegistry
 
 import cn.ac.ict.acs.netflow.{ Logging, NetFlowConf }
+import cn.ac.ict.acs.netflow.metrics.sink.Sink
+import cn.ac.ict.acs.netflow.metrics.source.Source
 
 class MetricsSystem(
     val instance: String,

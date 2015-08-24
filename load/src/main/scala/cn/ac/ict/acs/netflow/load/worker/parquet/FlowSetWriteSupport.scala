@@ -19,8 +19,6 @@
 
 package cn.ac.ict.acs.netflow.load.worker.parquet
 
-import cn.ac.ict.acs.netflow.load.worker.codegen.GenerateFlowSetWriter
-
 import scala.collection.immutable.HashMap
 import scala.collection.JavaConverters._
 
@@ -47,8 +45,6 @@ class FlowSetWriteSupport extends WriteSupport[DataFlowSet] with Logging {
   }
 
   override def write(flowSet: DataFlowSet) = {
-    val template = flowSet.template
-    val writer = GenerateFlowSetWriter.generate(template)
-    writer.insert(consumer, flowSet)
+    flowSet.template.writer.insert(consumer, flowSet)
   }
 }

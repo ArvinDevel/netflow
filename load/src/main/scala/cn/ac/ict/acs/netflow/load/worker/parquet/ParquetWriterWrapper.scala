@@ -36,16 +36,16 @@ object ParquetWriterWrapper {
 class ParquetWriterWrapper(worker: ActorRef, conf: NetFlowConf)
     extends WriterWrapper with Logging {
 
-  private val dicInterValMs = load.dirCreationInterval(conf)
-  private val closeDelayMs = load.writerCloseDelay(conf)
-  require(dicInterValMs > closeDelayMs,
+  private val dirCreationInterval = load.dirCreationInterval(conf)
+  private val writerCloseDelay = load.writerCloseDelay(conf)
+  require(dirCreationInterval > writerCloseDelay,
     "closeInterval should be less than dicInterValTime in netflow configure file")
 
   private val timeToWriters = mutable.HashMap.empty[Long, Writer]
   private val closeWriterScheduler = mutable.HashMap.empty[Writer, ScheduledFuture[_]]
 
   private def registerCloseScheduler(writer: Writer, timeStampMs: Long) = {
-    val remainTime = load.getRemainTimes(timeStampMs, dicInterValMs, closeDelayMs, conf)
+    val remainTime = load.getRemainTimes(timeStampMs, dirCreationInterval, writerCloseDelay)
 
     logInfo(s"Register ${writer.id} parquet writer for" +
       s" ${load.getPathByTime(timeStampMs, conf)}, " +
@@ -69,7 +69,7 @@ class ParquetWriterWrapper(worker: ActorRef, conf: NetFlowConf)
   override def init(): Unit = {}
 
   override def write(flowSet: DataFlowSet, packetTime: Long) = {
-    val timeBase = load.getTimeBase(packetTime, conf)
+    val timeBase = load.getTimeBase(packetTime, dirCreationInterval)
     val writer = timeToWriters.getOrElseUpdate(timeBase, {
       val tbw = new TimelyParquetWriter(timeBase, conf)
       tbw.init()

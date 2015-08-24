@@ -37,16 +37,15 @@ import cn.ac.ict.acs.netflow.util._
 import cn.ac.ict.acs.netflow.metrics.MetricsSystem
 
 class LoadWorker(
-  host: String,
-  port: Int,
-  webUiPort: Int,
-  cores: Int,
-  memory: Int,
-  masterAkkaUrls: Array[String],
-  actorSystemName: String,
-  actorName: String,
-  val conf: NetFlowConf)
-    extends Actor with ActorLogReceive with Logging {
+    host: String,
+    port: Int,
+    webUiPort: Int,
+    cores: Int,
+    memory: Int,
+    masterAkkaUrls: Array[String],
+    actorSystemName: String,
+    actorName: String,
+    val conf: NetFlowConf) extends Actor with ActorLogReceive with Logging {
 
   import DeployMessages._
   import LoadMessages._
@@ -131,7 +130,7 @@ class LoadWorker(
     logInfo(s"Running NetFlow version ${cn.ac.ict.acs.netflow.NETFLOW_VERSION}")
     context.system.eventStream.subscribe(self, classOf[RemotingLifecycleEvent])
 
-    val defaultWriterNum = conf.getInt(LoadConf.WRITER_NUMBER, 2)
+    val defaultWriterNum = conf.getInt(LoadConf.WRITER_NUMBER, 1)
     
     logInfo(s"Init write parquet pool, and will start $defaultWriterNum threads")
     loadServer.initParquetWriterPool(defaultWriterNum)
@@ -393,7 +392,7 @@ class LoadWorker(
 
   private object DefaultLoadBalanceStrategy2 extends LoadBalanceStrategy with Logging{
 
-    private val maxLoadThreadsNum = cores / 2
+    private val maxLoadThreadsNum = cores
 
     override def loadBalanceWorker(): Unit = {
 

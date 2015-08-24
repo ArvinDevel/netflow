@@ -83,9 +83,15 @@ package object load {
    * @param millis
    * @return
    */
+  // TODO: we should use this with careful, only in non-critical path
   def getTimeBase(millis: Long, conf: NetFlowConf): Long = {
+    // read conf each time is really time consuming indeed, we should reuse the configuration
     val interval = dirCreationInterval(conf)
     millis / interval * interval
+  }
+
+  def getTimeBase(millis: Long, dirCreationInterval: Long): Long = {
+    millis / dirCreationInterval * dirCreationInterval
   }
 
   /**
@@ -93,11 +99,10 @@ package object load {
    * @param curMillis  current millis time
    * @param intervalMs  interval time ms
    * @param delay   delay time ms
-   * @param conf
    * @return
    */
-  def getRemainTimes(curMillis: Long, intervalMs: Long, delay: Long, conf: NetFlowConf): Long = {
-    val baseTime = getTimeBase(curMillis, conf)
+  def getRemainTimes(curMillis: Long, intervalMs: Long, delay: Long): Long = {
+    val baseTime = getTimeBase(curMillis, intervalMs)
     intervalMs + delay - (curMillis - baseTime)
   }
 }

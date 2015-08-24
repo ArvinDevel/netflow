@@ -23,14 +23,16 @@ object BGPRoutingTable {
   // we might want to separate v4 item from v6,
   // if so, split into two methods and call them accordingly.
   def search(dst_addr: Array[Byte]): Array[Any] = {
-    Array(
-      "192.168.1.1".getBytes,
-      "192.168.1.1".getBytes, null,
-      "192.168.2.1".getBytes, null,
-      "as_path", "community", "adjacent_as", "self_as")
+    pseudo
   }
 
   def update(tuple: BGPTuple): Unit = ???
+  
+  val pseudo: Array[Any] = Array(
+    "192.168.1.1".getBytes,
+    "192.168.1.1".getBytes, null,
+    "192.168.2.1".getBytes, null,
+    "as_path", "community", "adjacent_as", "self_as")
 
 }
 
