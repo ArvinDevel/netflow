@@ -40,10 +40,10 @@ object ParquetSchema extends Logging {
   bgpFields(2) = new PrimitiveType(OPTIONAL, BINARY, "router_ipv6")
   bgpFields(3) = new PrimitiveType(OPTIONAL, BINARY, "next_hop_ipv4")
   bgpFields(4) = new PrimitiveType(OPTIONAL, BINARY, "next_hop_ipv6")
-  bgpFields(5) = new PrimitiveType(OPTIONAL, BINARY, "as_path", UTF8)
-  bgpFields(6) = new PrimitiveType(OPTIONAL, BINARY, "community", UTF8)
-  bgpFields(7) = new PrimitiveType(OPTIONAL, BINARY, "adjacent_as", UTF8)
-  bgpFields(8) = new PrimitiveType(OPTIONAL, BINARY, "self_as", UTF8)
+  bgpFields(5) = new PrimitiveType(OPTIONAL, BINARY, "as_path")
+  bgpFields(6) = new PrimitiveType(OPTIONAL, BINARY, "community")
+  bgpFields(7) = new PrimitiveType(OPTIONAL, BINARY, "adjacent_as")
+  bgpFields(8) = new PrimitiveType(OPTIONAL, BINARY, "self_as")
 
   private val netflowFields = new Array[Type](101)
   netflowFields(0) = null

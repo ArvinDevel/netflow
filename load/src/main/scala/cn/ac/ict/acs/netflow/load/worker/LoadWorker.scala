@@ -22,8 +22,6 @@ import java.net.InetAddress
 import java.util
 import java.util.UUID
 
-import cn.ac.ict.acs.netflow.load.worker.tcp.StreamingServer
-
 import scala.util.Random
 import scala.concurrent.duration._
 
@@ -33,6 +31,8 @@ import akka.remote.{ DisassociatedEvent, RemotingLifecycleEvent }
 import org.joda.time.DateTime
 import cn.ac.ict.acs.netflow._
 import cn.ac.ict.acs.netflow.load.{ LoadConf, LoadMessages }
+import cn.ac.ict.acs.netflow.load.util.ByteBufferPool
+import cn.ac.ict.acs.netflow.load.worker.tcp.StreamingServer
 import cn.ac.ict.acs.netflow.util._
 import cn.ac.ict.acs.netflow.metrics.MetricsSystem
 
@@ -109,11 +109,15 @@ class LoadWorker(
     DefaultLoadBalanceStrategy2.loadBalanceWorker,
     () => master ! BuffersWarn(workerIP), conf)
 
+  // pool holds all the byteBuffer allocated for netflow packets and we should reuse
+  // when possible to minimize GC pressure
+  val bufferPool = new ByteBufferPool
+
   // load Service, selfActor for tell worker to combine the directory witch has finish writing.
-  val loadServer = new LoaderService(self, netflowBuff, conf)
+  val loadServer = new LoaderService(self, netflowBuff, bufferPool, conf)
 
   // receiver Service
-  val receiverServer = new Receiver(netflowBuff, conf)
+  val receiverServer = new Receiver(netflowBuff, bufferPool, conf)
 
   val streamingServer = new StreamingServer(netflowBuff, conf)
 
@@ -150,6 +154,7 @@ class LoadWorker(
     receiverServer.interrupt()
     loadServer.stopAllWriterThreads()
     metricsSystem.stop()
+    bufferPool.shutdown()
   }
 
   override def receiveWithLogging = {

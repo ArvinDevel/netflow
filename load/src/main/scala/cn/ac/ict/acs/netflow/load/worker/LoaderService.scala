@@ -21,6 +21,7 @@ package cn.ac.ict.acs.netflow.load.worker
 import java.util
 
 import akka.actor.ActorRef
+import cn.ac.ict.acs.netflow.load.util.ByteBufferPool
 import cn.ac.ict.acs.netflow.load.worker.parser.PacketParser._
 import cn.ac.ict.acs.netflow.{NetFlowException, Logging, NetFlowConf}
 import cn.ac.ict.acs.netflow.load.worker.parquet.ParquetWriterWrapper
@@ -30,6 +31,7 @@ import scala.collection._
 final class LoaderService(
     private val workerActor: ActorRef,
     private val bufferList: WrapBufferQueue,
+    private val bufferPool: ByteBufferPool,
     private val conf: NetFlowConf) extends Logging {
 
   private val writerThreadPool = ThreadUtils.newDaemonCachedThreadPool("loadService-writerPool")
@@ -145,6 +147,7 @@ final class LoaderService(
               val fs = flowSets.next()
               writer.write(fs, packetTime)
             }
+            bufferPool.release(data)
           }
         } catch {
           case e: InterruptedException =>

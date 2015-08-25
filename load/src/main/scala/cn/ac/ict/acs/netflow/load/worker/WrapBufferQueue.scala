@@ -19,6 +19,7 @@
 package cn.ac.ict.acs.netflow.load.worker
 
 import java.nio.ByteBuffer
+import java.util.concurrent.atomic.AtomicLong
 import java.util.concurrent.{ TimeUnit, Executors, LinkedBlockingQueue, LinkedBlockingDeque }
 
 import cn.ac.ict.acs.netflow.load.LoadConf
@@ -97,7 +98,9 @@ class WrapBufferQueue(
   private var _previousPacket: ByteBuffer = null
   private var _currentPacket: ByteBuffer = null
 
-  val lock = new Object
+  class LockLockLock
+
+  val lock = new LockLockLock
 
   /**
    * User of this method should guarantee not to change the buffer's state
@@ -115,21 +118,21 @@ class WrapBufferQueue(
   }
 
   // get the element from queue , block when the queue is empty
-  def take() = {
+  def take(): ByteBuffer = {
     val data = bufferQueue.take()
-    dequeueCount += data.limit()
-    _currentPacket = data.duplicate()
-    lock.synchronized {
-      lock.notify()
-    }
+    dequeueCount += data.capacity()
+//    _currentPacket = data.duplicate()
+//    lock.synchronized {
+//      lock.notify()
+//    }
     data
   }
 
   // put the element to queue, block when the queue is full
-  def put(byteBuffer: ByteBuffer) = {
+  def put(byteBuffer: ByteBuffer): Unit = {
     checkThreshold()
     bufferQueue.put(byteBuffer)
-    enqueueCount += byteBuffer.limit()
+    enqueueCount += byteBuffer.capacity()
   }
 
   def currSize = bufferQueue.size()

@@ -23,12 +23,12 @@ import java.io.IOException
 import java.net.{ InetSocketAddress, ServerSocket }
 import java.nio.{ ByteOrder, ByteBuffer }
 import java.nio.channels._
-import java.util.concurrent.{TimeUnit, Executors}
 
 import scala.collection.mutable
 
 import cn.ac.ict.acs.netflow.util.Utils
 import cn.ac.ict.acs.netflow.{ NetFlowException, Logging, NetFlowConf }
+import cn.ac.ict.acs.netflow.load.util.ByteBufferPool
 
 /**
  * A multi-way receiver that serve connections from collectors and read packets from it
@@ -37,7 +37,10 @@ import cn.ac.ict.acs.netflow.{ NetFlowException, Logging, NetFlowConf }
  *
  * TODO thread restart?
  */
-class Receiver(packetBuffer: WrapBufferQueue, conf: NetFlowConf) extends Thread with Logging {
+class Receiver(
+    packetBuffer: WrapBufferQueue,
+    bufferPool: ByteBufferPool,
+    conf: NetFlowConf) extends Thread with Logging {
 
   logInfo(s"Initializing Multi-Way Receiver")
   setName("Receiver server Thread")
@@ -139,7 +142,7 @@ class Receiver(packetBuffer: WrapBufferQueue, conf: NetFlowConf) extends Thread 
       if (holder.content != null) { // reading packet
         val curContent = holder.content
         channelRead(channel, curContent)
-        if (curContent.position == curContent.capacity) {
+        if (curContent.position == curContent.limit) {
           curContent.flip()
           packetBuffer.put(curContent)
           holder.content = null
@@ -153,7 +156,8 @@ class Receiver(packetBuffer: WrapBufferQueue, conf: NetFlowConf) extends Thread 
           if (packetLength < 0) {
             throw new NetFlowException("Invalid packet length")
           }
-          holder.content = ByteBuffer.allocate(packetLength - 2)
+
+          holder.content = bufferPool.get.limit(packetLength - 2).asInstanceOf[ByteBuffer]
           readPacketFromSocket(sk)
         }
       }

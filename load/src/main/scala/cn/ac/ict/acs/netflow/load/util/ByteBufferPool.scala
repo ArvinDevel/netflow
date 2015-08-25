@@ -16,27 +16,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package cn.ac.ict.acs.netflow.load.worker.bgp
 
-object BGPRoutingTable {
+package cn.ac.ict.acs.netflow.load.util
 
-  // we might want to separate v4 item from v6,
-  // if so, split into two methods and call them accordingly.
-  def search(dst_addr: Array[Byte]): Array[Any] = {
-    pseudo
+import java.nio.ByteBuffer
+import java.util.concurrent.{ConcurrentLinkedDeque, ConcurrentLinkedQueue}
+
+class ByteBufferPool {
+
+  private val innerStack: ConcurrentLinkedDeque[ByteBuffer] =
+    new ConcurrentLinkedDeque[ByteBuffer]()
+
+  def get(): ByteBuffer = synchronized {
+    try {
+      innerStack.pop()
+    } catch {
+      case e: NoSuchElementException =>
+        ByteBuffer.allocate(1500)
+    }
   }
 
-  def update(tuple: BGPTuple): Unit = ???
-  
-  val pseudo: Array[Any] = Array(
-    "192.168.1.1".getBytes,
-    "192.168.1.1".getBytes, null,
-    "192.168.2.1".getBytes, null,
-    "as_path".getBytes("UTF-8"),
-    "community".getBytes("UTF-8"),
-    "adjacent_as".getBytes("UTF-8"),
-    "self_as".getBytes("UTF-8"))
+  def release(bb: ByteBuffer): Unit = {
+    bb.clear()
+    innerStack.push(bb)
+  }
 
+  def shutdown(): Unit = {
+    innerStack.clear()
+  }
 }
-
-case class BGPTuple(fields: Array[Any])
