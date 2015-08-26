@@ -140,7 +140,7 @@ object GenerateFlowSetWriter extends CodeGenerator[Template, InnerWriter] {
       s"""
         byte[] ipv6DstAddr = new byte[16];
         bb.position(curRowPos + $ipPosInCurRow);
-        bb.get(ipv4DstAddr, 0, 16);
+        bb.get(ipv6DstAddr, 0, 16);
         bb.position(curRowPos);
         Object[] bgpTuple = $bgpTable.search(ipv6DstAddr); // we may want to specialize v6 from v4
       """

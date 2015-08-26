@@ -19,7 +19,7 @@
 package cn.ac.ict.acs.netflow.load.worker
 
 import java.nio.ByteBuffer
-import java.util.concurrent.atomic.AtomicLong
+import java.util.concurrent.atomic.{AtomicInteger, AtomicLong}
 import java.util.concurrent.{ TimeUnit, Executors, LinkedBlockingQueue, LinkedBlockingDeque }
 
 import cn.ac.ict.acs.netflow.load.LoadConf
@@ -29,7 +29,7 @@ import cn.ac.ict.acs.netflow.util.ThreadUtils
 object WrapBufferQueue {
   val scheduledThreadPool =
     ThreadUtils.newDaemonScheduledExecutor("WrapBufferQueue-ScheduledExecutor", 4)
-  val sampleInterval = 30 // s
+  val sampleInterval = 10 // s
 
   def registerScheduled(wrapBuff: WrapBufferQueue): Unit = {
 
@@ -56,11 +56,9 @@ object WrapBufferQueue {
       0, wrapBuff.reportWorkerDelay, TimeUnit.SECONDS)
 
     scheduledThreadPool.scheduleAtFixedRate(new Runnable {
-      override def run(): Unit = synchronized {
-        wrapBuff.enqueueRate = 1.0 * wrapBuff.enqueueCount / sampleInterval
-        wrapBuff.enqueueCount = 0
-        wrapBuff.dequeueRate = 1.0 * wrapBuff.dequeueCount / sampleInterval
-        wrapBuff.dequeueCount = 0
+      override def run(): Unit = {
+        wrapBuff.enqueueRate = 1.0 * wrapBuff.enqueueCount.getAndSet(0) / sampleInterval
+        wrapBuff.dequeueRate = 1.0 * wrapBuff.dequeueCount.getAndSet(0) / sampleInterval
       }
     }, 0, sampleInterval, TimeUnit.SECONDS)
   }
@@ -88,10 +86,10 @@ class WrapBufferQueue(
   @volatile private var reportMasterFlag: Boolean = false
   @volatile private var reportWorkerFlag: Boolean = false
   @volatile var lastQueueSize: Int = 0
-  @volatile var enqueueCount: Int = 0
-  @volatile var enqueueRate: Double = 0
-  @volatile var dequeueCount: Int = 0
-  @volatile var dequeueRate: Double = 0
+  var enqueueCount: AtomicInteger = new AtomicInteger(0)
+  var enqueueRate: Double = 0
+  var dequeueCount: AtomicInteger = new AtomicInteger(0)
+  var dequeueRate: Double = 0
 
   WrapBufferQueue.registerScheduled(this) // statistic rate by Daemon thread
 
@@ -120,7 +118,7 @@ class WrapBufferQueue(
   // get the element from queue , block when the queue is empty
   def take(): ByteBuffer = {
     val data = bufferQueue.take()
-    dequeueCount += data.capacity()
+    dequeueCount.addAndGet(data.capacity())
 //    _currentPacket = data.duplicate()
 //    lock.synchronized {
 //      lock.notify()
@@ -132,7 +130,7 @@ class WrapBufferQueue(
   def put(byteBuffer: ByteBuffer): Unit = {
     checkThreshold()
     bufferQueue.put(byteBuffer)
-    enqueueCount += byteBuffer.capacity()
+    enqueueCount.addAndGet(byteBuffer.capacity())
   }
 
   def currSize = bufferQueue.size()
