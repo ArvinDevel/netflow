@@ -18,11 +18,13 @@
  */
 package cn.ac.ict.acs.netflow.streaming
 
+import scala.collection.mutable
 import scala.concurrent.Future
 
 import akka.actor.{ActorSelection, Actor, Props}
 
-import org.apache.spark.streaming.{Seconds, Minutes, StreamingContext}
+import org.apache.spark.streaming.{Seconds, StreamingContext}
+import org.apache.spark.streaming.dstream.DStream
 import org.apache.spark.SparkConf
 
 import cn.ac.ict.acs.netflow.{JobMessages, Logging, NetFlowConf}
@@ -50,30 +52,32 @@ class DDoSJobActor(loadMasterUrl: String) extends Actor with ActorLogReceive wit
 
   def runJob(): Unit = {
     val conf = new SparkConf().setAppName("DDoSDetection")
-    val ssc = new StreamingContext(conf, Seconds(3))
+    val ssc = new StreamingContext(conf, Seconds(1))
     val receivers = loaderInfos.map(info => new DDoSReceiver(info.ip, info.streamingPort))
-    val allStreams = ssc.union(receivers.map(ssc.receiverStream(_)))
+    val allStreams: DStream[Record] = ssc.union(receivers.map(ssc.receiverStream(_)))
 
-    val iafvc = new IAFVC(0.1, 0.01)
-
-    // DDoS detection logic goes here
-    // the fake ones:
-    allStreams.foreachRDD { rdd =>
-
-      println(s"===================${rdd.count()}=====================")
-
-      val features = iafvc.getFeatures(rdd)
-      if (features != null) {
-        for (i <- 0 to (features.size - 1)) {
-          for (j <- 0 to (features(i).size - 1)) {
-            print(features(i)(j))
-            print(" ")
-          }
-          println("")
-        }
-      } else {
-        println("============get no features==============")
+    val updateState = (values: Seq[DDoSState], state: Option[DDoSState]) => {
+      val stateObj = state.getOrElse(new DDoSState)
+      values.size match {
+        case 0 => stateObj.expireCounter += 1
+        case n => values.foreach(stateObj.merge(_))
       }
+      if (stateObj.expireCounter > 5) None else Option(stateObj)
+    }
+
+    val localStates: DStream[(Long, DDoSState)] = allStreams.mapPartitions { records =>
+      val states = mutable.HashMap.empty[Long, DDoSState]
+      records.foreach { record =>
+        states.getOrElseUpdate(record.time, new DDoSState).insert(record.srcIp, record.dstIp)
+      }
+      states.iterator
+    }
+
+    val allStates = localStates.updateStateByKey[DDoSState](updateState)
+    val finishedStates: DStream[(Long, DDoSState)] = allStates.filter(_._2.expireCounter == 5)
+
+    finishedStates.foreachRDD { rdd =>
+
     }
 
     ssc.start()

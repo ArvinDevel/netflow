@@ -30,14 +30,7 @@ import org.apache.spark.streaming.receiver.Receiver
 
 import cn.ac.ict.acs.netflow.{NetFlowException, Logging}
 
-case class Record(time: Long, srcIp: Array[Byte], dstIp: Array[Byte]) {
-
-  val format = new SimpleDateFormat("HH:mm:ss.SSS")
-
-  def timeString = format.format(new Date(time))
-  def srcIPString = IPUtils.toString(srcIp)
-  def dstIPString = IPUtils.toString(dstIp)
-}
+case class Record(time: Long, srcIp: ByteBuffer, dstIp: ByteBuffer)
 
 class DDoSReceiver(val host: String, val port: Int)
   extends Receiver[Record](StorageLevel.MEMORY_AND_DISK_2)
@@ -92,8 +85,8 @@ class DDoSReceiver(val host: String, val port: Int)
           val srcIp = new Array[Byte](4)
           val dstIp = new Array[Byte](4)
           store(Record(time,
-            {currentContent.get(srcIp); srcIp},
-            {currentContent.get(dstIp); dstIp}))
+            {currentContent.get(srcIp); ByteBuffer.wrap(srcIp)},
+            {currentContent.get(dstIp); ByteBuffer.wrap(dstIp)}))
           i += 1
         }
         packet.countAndTime.clear()
