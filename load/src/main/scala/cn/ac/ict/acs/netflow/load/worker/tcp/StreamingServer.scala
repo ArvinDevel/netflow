@@ -29,8 +29,12 @@ import cn.ac.ict.acs.netflow.load.worker.WrapBufferQueue
 import cn.ac.ict.acs.netflow.load.worker.parser.Template
 import cn.ac.ict.acs.netflow.load.worker.parser.PacketParser._
 import cn.ac.ict.acs.netflow.util.Utils
+import cn.ac.ict.acs.netflow.load.util.ByteBufferPool
 
-class StreamingServer(queue: WrapBufferQueue, conf: NetFlowConf) extends Thread with Logging {
+class StreamingServer(
+    queue: WrapBufferQueue,
+    pool: ByteBufferPool,
+    conf: NetFlowConf) extends Thread with Logging {
   logInfo(s"Initializing Server for SparkStreaming Receiver")
   setName("SparkStreaming Server Thread")
   setDaemon(true)
@@ -147,9 +151,23 @@ class StreamingServer(queue: WrapBufferQueue, conf: NetFlowConf) extends Thread 
     resultBuffer.clear()
     resultBuffer.position(4) // leave for line count
 
-    val currentPacket = queue.currentPacket
+    var currentPacket = queue.currentPacket
+    var invalidPacket = true
 
-    val (flowSets, packetTime) = parse(currentPacket)
+    while (invalidPacket) {
+      currentPacket.synchronized {
+        if (!currentPacket.released) {
+          currentPacket.shared = true
+          invalidPacket = false
+        } else {
+          currentPacket = queue.currentPacket
+        }
+      }
+    }
+
+    val currentContent = currentPacket.buffer.duplicate()
+
+    val (flowSets, packetTime) = parse(currentContent)
     resultBuffer.putLong(packetTime)
     var count = 0
     while (flowSets.hasNext) {
@@ -178,10 +196,10 @@ class StreamingServer(queue: WrapBufferQueue, conf: NetFlowConf) extends Thread 
             throw new NetFlowException("Not a valid flowset, just ignore this")
           }
 
-          currentPacket.position(row.startPos + srcPos)
-          transferIpv4(currentPacket, resultBuffer)
-          currentPacket.position(row.startPos + dstPos)
-          transferIpv4(currentPacket, resultBuffer)
+          currentContent.position(row.startPos + srcPos)
+          transferIpv4(currentContent, resultBuffer)
+          currentContent.position(row.startPos + dstPos)
+          transferIpv4(currentContent, resultBuffer)
 
           count += 1
         }
@@ -189,6 +207,9 @@ class StreamingServer(queue: WrapBufferQueue, conf: NetFlowConf) extends Thread 
         case e: NetFlowException => // do nothing
       }
     }
+
+    pool.release(currentPacket.buffer)
+
     resultBuffer.putInt(0, count)
     resultBuffer.flip().asInstanceOf[ByteBuffer]
   }

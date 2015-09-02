@@ -23,6 +23,7 @@ import java.util.concurrent.atomic.{AtomicInteger, AtomicLong}
 import java.util.concurrent.{ TimeUnit, Executors, LinkedBlockingQueue, LinkedBlockingDeque }
 
 import cn.ac.ict.acs.netflow.load.LoadConf
+import cn.ac.ict.acs.netflow.load.util.ShareableBuffer
 import cn.ac.ict.acs.netflow.{ NetFlowConf, Logging }
 import cn.ac.ict.acs.netflow.util.ThreadUtils
 
@@ -93,8 +94,8 @@ class WrapBufferQueue(
 
   WrapBufferQueue.registerScheduled(this) // statistic rate by Daemon thread
 
-  private var _previousPacket: ByteBuffer = null
-  private var _currentPacket: ByteBuffer = null
+  private var _previousPacket: ShareableBuffer = null
+  private var _currentPacket: ShareableBuffer = null
 
   class LockLockLock
 
@@ -105,7 +106,7 @@ class WrapBufferQueue(
    * since it is shared with another parquet writer thread
    * @return
    */
-  def currentPacket: ByteBuffer = {
+  def currentPacket: ShareableBuffer = {
     lock.synchronized {
       while (_currentPacket == null || _previousPacket == _currentPacket) {
         lock.wait()
@@ -115,14 +116,14 @@ class WrapBufferQueue(
     _currentPacket
   }
 
-  // get the element from queue , block when the queue is empty
-  def take(): ByteBuffer = {
-    val data = bufferQueue.take()
-    dequeueCount.addAndGet(data.capacity())
-//    _currentPacket = data.duplicate()
-//    lock.synchronized {
-//      lock.notify()
-//    }
+  // get the element from queue, block when the queue is empty
+  def take(): ShareableBuffer = {
+    val data = ShareableBuffer(bufferQueue.take())
+    dequeueCount.addAndGet(data.buffer.capacity())
+    _currentPacket = data
+    lock.synchronized {
+      lock.notify()
+    }
     data
   }
 

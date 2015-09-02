@@ -119,7 +119,7 @@ class LoadWorker(
   // receiver Service
   val receiverServer = new Receiver(netflowBuff, bufferPool, conf)
 
-  val streamingServer = new StreamingServer(netflowBuff, conf)
+  val streamingServer = new StreamingServer(netflowBuff, bufferPool, conf)
 
   // whole load thread's current combine file timestamp
   private var combineTimeStamp: Long = _
