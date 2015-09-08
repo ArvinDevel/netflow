@@ -18,6 +18,8 @@
  */
 package cn.ac.ict.acs.netflow.streaming
 
+import java.nio.ByteBuffer
+
 import scala.collection.mutable
 import scala.concurrent.Future
 
@@ -54,7 +56,7 @@ class DDoSJobActor(loadMasterUrl: String) extends Actor with ActorLogReceive wit
     val conf = new SparkConf().setAppName("DDoSDetection")
     val ssc = new StreamingContext(conf, Seconds(1))
     val receivers = loaderInfos.map(info => new DDoSReceiver(info.ip, info.streamingPort))
-    val allStreams: DStream[Record] = ssc.union(receivers.map(ssc.receiverStream(_)))
+    val allStreams: DStream[NetflowPacket] = ssc.union(receivers.map(ssc.receiverStream(_)))
 
     val updateState = (values: Seq[DDoSState], state: Option[DDoSState]) => {
       val stateObj = state.getOrElse(new DDoSState)
@@ -65,10 +67,25 @@ class DDoSJobActor(loadMasterUrl: String) extends Actor with ActorLogReceive wit
       if (stateObj.expireCounter > 5) None else Option(stateObj)
     }
 
-    val localStates: DStream[(Long, DDoSState)] = allStreams.mapPartitions { records =>
+    val localStates: DStream[(Long, DDoSState)] = allStreams.mapPartitions { packetIter =>
       val states = mutable.HashMap.empty[Long, DDoSState]
-      records.foreach { record =>
-        states.getOrElseUpdate(record.time, new DDoSState).insert(record.srcIp, record.dstIp)
+      packetIter.foreach { packet =>
+        val count = packet.count
+        val time = packet.time
+        val data = ByteBuffer.wrap(packet.data)
+        var i = 0
+        while (i < count) {
+          val srcIp = new Array[Byte](4)
+          val dstIp = new Array[Byte](4)
+          data.get(srcIp)
+          val src = ByteBuffer.wrap(srcIp)
+          data.get(dstIp)
+          val dst = ByteBuffer.wrap(dstIp)
+
+          states.getOrElseUpdate(time, new DDoSState).insert(src, dst)
+
+          i += 1
+        }
       }
       states.iterator
     }

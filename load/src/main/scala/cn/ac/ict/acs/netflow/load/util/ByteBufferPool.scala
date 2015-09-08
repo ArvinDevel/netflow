@@ -20,7 +20,7 @@
 package cn.ac.ict.acs.netflow.load.util
 
 import java.nio.ByteBuffer
-import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.atomic.{AtomicInteger, AtomicBoolean}
 import java.util.concurrent.{ConcurrentLinkedDeque, ConcurrentLinkedQueue}
 
 class ByteBufferPool {
@@ -37,16 +37,11 @@ class ByteBufferPool {
     }
   }
 
-  def release(bb: ByteBuffer): Unit = {
-    bb.clear()
-    innerStack.push(bb)
-  }
-
   def release(sb: ShareableBuffer): Unit = {
     sb.synchronized {
-      if (!sb.shared) {
-        release(sb.buffer)
-        sb.released = true
+      if (sb.holderNum.decrementAndGet() == 0) {
+        sb.buffer.clear()
+        innerStack.push(sb.buffer)
       }
     }
   }
@@ -58,5 +53,4 @@ class ByteBufferPool {
 
 case class ShareableBuffer(
     buffer: ByteBuffer,
-    var shared: Boolean = false,
-    var released: Boolean = false)
+    holderNum: AtomicInteger = new AtomicInteger(1))

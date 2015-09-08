@@ -156,9 +156,9 @@ class StreamingServer(
 
     while (invalidPacket) {
       currentPacket.synchronized {
-        if (!currentPacket.released) {
-          currentPacket.shared = true
+        if (currentPacket.holderNum.get() == 1) {
           invalidPacket = false
+          currentPacket.holderNum.incrementAndGet()
         } else {
           currentPacket = queue.currentPacket
         }
@@ -208,7 +208,7 @@ class StreamingServer(
       }
     }
 
-    pool.release(currentPacket.buffer)
+    pool.release(currentPacket)
 
     resultBuffer.putInt(0, count)
     resultBuffer.flip().asInstanceOf[ByteBuffer]

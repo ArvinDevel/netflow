@@ -18,16 +18,32 @@
  */
 package cn.ac.ict.acs.netflow.streaming
 
+import java.io.{ObjectInputStream, ObjectOutputStream}
 import java.nio.ByteBuffer
 
 import scala.collection.mutable
 
+import cn.ac.ict.acs.netflow.util.Utils
+
 case class Statistic(dstIp: ByteBuffer, num: Int)
 
-class DestinationInfo private (
-    val dstIp: ByteBuffer,
+class DestinationInfo (
+    @transient var dstIp: ByteBuffer,
     var multiDestination: Boolean,
-    var count: Int) {
+    var count: Int) extends Serializable {
+
+  private def writeObject(out: ObjectOutputStream): Unit = Utils.tryOrIOException {
+    out.defaultWriteObject()
+    out.writeInt(dstIp.limit())
+    out.write(dstIp.array())
+  }
+
+  private def readObject(in: ObjectInputStream): Unit = Utils.tryOrIOException {
+    in.defaultReadObject()
+    val data = new Array[Byte](in.readInt())
+    in.readFully(data)
+    dstIp = ByteBuffer.wrap(data)
+  }
 
   def this(dstIp: ByteBuffer) {
     this(dstIp, false, 1)
@@ -65,12 +81,41 @@ class SourceInfo private (
 }
 
 class DDoSState extends Serializable {
-  var expireCounter: Int = 0
-
+  @transient var expireCounter: Int = 0
   // srcIp -> DstInfo
-  val srcMap = mutable.HashMap.empty[ByteBuffer, DestinationInfo]
+  @transient var srcMap: mutable.HashMap[ByteBuffer, DestinationInfo] = null
   // dstIp -> SrcInfo
-  var finalMap: mutable.HashMap[ByteBuffer, SourceInfo] = null
+  @transient var finalMap: mutable.HashMap[ByteBuffer, SourceInfo] = null
+
+  def init(): Unit = {
+    srcMap = new mutable.HashMap
+  }
+
+  init()
+
+  private def writeObject(out: ObjectOutputStream): Unit = Utils.tryOrIOException {
+    out.writeInt(expireCounter)
+    out.writeInt(srcMap.size)
+    srcMap.foreach { case (srcIp, dstInfo) =>
+      out.writeInt(srcIp.limit)
+      out.write(srcIp.array, 0, srcIp.limit())
+      out.writeObject(dstInfo)
+    }
+  }
+
+  private def readObject(in: ObjectInputStream): Unit = Utils.tryOrIOException {
+    init()
+    expireCounter = in.readInt()
+    val size = in.readInt()
+    var i = 0
+    while (i < size) {
+      val srcIp = new Array[Byte](in.readInt())
+      in.readFully(srcIp)
+      val dstInfo = in.readObject().asInstanceOf[DestinationInfo]
+      srcMap(ByteBuffer.wrap(srcIp)) = dstInfo
+      i += 1
+    }
+  }
 
   def insert(srcIp: ByteBuffer, dstIp: ByteBuffer): Unit = {
     srcMap.get(srcIp) match {

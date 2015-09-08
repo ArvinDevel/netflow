@@ -32,8 +32,10 @@ import cn.ac.ict.acs.netflow.{NetFlowException, Logging}
 
 case class Record(time: Long, srcIp: ByteBuffer, dstIp: ByteBuffer)
 
+case class NetflowPacket(time: Long, count: Int, data: Array[Byte])
+
 class DDoSReceiver(val host: String, val port: Int)
-  extends Receiver[Record](StorageLevel.MEMORY_AND_DISK_2)
+  extends Receiver[NetflowPacket](StorageLevel.MEMORY_AND_DISK_2)
   with Logging {
 
   override def preferredLocation = Some(host)
@@ -80,15 +82,8 @@ class DDoSReceiver(val host: String, val port: Int)
         }
         currentContent.flip()
 
-        var i = 0
-        while (i < count) {
-          val srcIp = new Array[Byte](4)
-          val dstIp = new Array[Byte](4)
-          store(Record(time,
-            {currentContent.get(srcIp); ByteBuffer.wrap(srcIp)},
-            {currentContent.get(dstIp); ByteBuffer.wrap(dstIp)}))
-          i += 1
-        }
+        store(NetflowPacket(time, count, currentContent.array))
+
         packet.countAndTime.clear()
         packet.content = null
       }

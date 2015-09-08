@@ -49,6 +49,7 @@ derby.log
 dist/
 dev/create-release/*txt
 dev/create-release/*final
+dev/newtrain
 unit-tests.log
 /lib/
 ec2/lib/

@@ -142,7 +142,7 @@ final class LoaderService(
             }
 
             packageCount += 1
-            val (flowSets, packetTime) = parse(data.buffer)
+            val (flowSets, packetTime) = parse(data.buffer.duplicate())
             while (flowSets.hasNext) {
               val fs = flowSets.next()
               writer.write(fs, packetTime)
