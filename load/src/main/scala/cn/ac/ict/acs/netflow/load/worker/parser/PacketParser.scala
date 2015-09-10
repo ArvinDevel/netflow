@@ -127,8 +127,10 @@ object PacketParser {
       val tempId = packet.getShort(curStartPos); curStartPos += 2
       val tempFields = packet.getShort(curStartPos); curStartPos +=2
       val tempKey = new TemplateKey(routerIp, tempId)
-      val template = new Template(tempId, tempFields, packet, curStartPos)
-      templates.put(tempKey, template)
+      if (!templates.containsKey(tempKey)) {
+        val template = new Template(tempId, tempFields, packet, curStartPos)
+        templates.put(tempKey, template)
+      }
       curStartPos += tempFields * 4
     }
     tmp_test += 1

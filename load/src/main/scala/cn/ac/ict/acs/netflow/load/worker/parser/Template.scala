@@ -25,14 +25,14 @@ import cn.ac.ict.acs.netflow.load.worker.codegen.{GenerateFlowSetWriter, InnerWr
 
 case class TemplateKey(routerIp: Array[Byte], templateId: Int) {
   override def hashCode(): Int = {
-    Arrays.hashCode(routerIp) * 41 + templateId
+    Arrays.hashCode(routerIp) * 31 + templateId
   }
 
-  override def equals(obj: scala.Any): Boolean = {
-    if (obj == null) return false
+  override def equals(other: scala.Any): Boolean = {
+    if (other == null) return false
     //    if(this == obj) return true
-    if (getClass != obj.getClass) return false
-    val oj = obj.asInstanceOf[TemplateKey]
+    if (getClass != other.getClass) return false
+    val oj = other.asInstanceOf[TemplateKey]
     if (oj.templateId != templateId) return false
     java.util.Arrays.equals(this.routerIp, oj.routerIp)
   }

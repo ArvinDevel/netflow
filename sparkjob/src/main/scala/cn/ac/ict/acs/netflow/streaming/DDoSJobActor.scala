@@ -32,7 +32,9 @@ import org.apache.spark.SparkConf
 import cn.ac.ict.acs.netflow.{JobMessages, Logging, NetFlowConf}
 import cn.ac.ict.acs.netflow.util.{ActorLogReceive, AkkaUtils, Utils}
 
-class DDoSJobActor(loadMasterUrl: String) extends Actor with ActorLogReceive with Logging {
+class DDoSJobActor(loadMasterUrl: String, checkPointDir: String)
+    extends Actor with ActorLogReceive with Logging {
+
   import context.dispatcher
 
   import JobMessages._
@@ -97,6 +99,7 @@ class DDoSJobActor(loadMasterUrl: String) extends Actor with ActorLogReceive wit
 
     }
 
+    ssc.checkpoint(checkPointDir)
     ssc.start()
     ssc.awaitTermination()
   }
@@ -106,12 +109,13 @@ object DDoSJobActor {
 
   /**
    * @param args arg0: netflow-load://
+   *             arg1: checkpointDir
    */
   def main(args: Array[String]) {
     val host = Utils.localHostName()
     val (actorSystem, _) =
       AkkaUtils.createActorSystem("DDoSJob", host, 0, new NetFlowConf(false))
-    actorSystem.actorOf(Props(classOf[DDoSJobActor], args(0)))
+    actorSystem.actorOf(Props(classOf[DDoSJobActor], args(0), args(1)))
     actorSystem.awaitTermination()
   }
 }

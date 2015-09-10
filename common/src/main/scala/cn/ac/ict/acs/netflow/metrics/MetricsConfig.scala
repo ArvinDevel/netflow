@@ -31,7 +31,7 @@ class MetricsConfig(val configFile: Option[String]) extends Logging {
 
   private val DEFAULT_PREFIX = "*"
   private val INSTANCE_REGEX = "^(\\*|[a-zA-Z]+)\\.(.+)".r
-  private val DEFAULT_METRICS_CONF_FILENAME = "metrics.properties"
+  private val DEFAULT_METRICS_CONF_FILENAME = "cn/ac/ict/acs/netflow/metrics-defaults.properties"
 
   private[metrics] val properties = new Properties()
   private[metrics] var propertyCategories: mutable.HashMap[String, Properties] = null
