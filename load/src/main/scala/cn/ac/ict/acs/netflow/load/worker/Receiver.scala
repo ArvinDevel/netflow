@@ -90,10 +90,7 @@ class Receiver(
           }
         } catch {
           case e: IOException =>
-<<<<<<< HEAD
-            logError(s"IOException in  ${getClass()} run")
-=======
->>>>>>> 0ff90c74ba797a32bdea0460b0d8f9a1c5175746
+
           // TODO
         }
       }
@@ -140,16 +137,13 @@ class Receiver(
     }
 
     val channel = sk.channel().asInstanceOf[SocketChannel]
-<<<<<<< HEAD
+
     // attachment can be use as a tag to recognize different connection,
     // here use Object to store data. 12.20 Arvin
     val holder = sk.attachment().asInstanceOf[PacketHolder]
 
     // the logic below confuse me. 12.20 Arvin
-=======
-    val holder = sk.attachment().asInstanceOf[PacketHolder]
 
->>>>>>> 0ff90c74ba797a32bdea0460b0d8f9a1c5175746
     try {
       if (holder.content != null) { // reading packet
         val curContent = holder.content

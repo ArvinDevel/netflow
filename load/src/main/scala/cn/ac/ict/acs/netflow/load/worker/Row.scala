@@ -34,7 +34,7 @@ abstract class Row {
     require(template != null)
     template.rowLength
   }
-<<<<<<< HEAD
+
   // not reset position, called by OrcWriter to write bgp
   // 12.30 Arvin
   lazy val ipv4OrV6DstAddr: Array[Byte] = {
@@ -56,8 +56,7 @@ abstract class Row {
      new Array[Byte](0)
     }
   }
-=======
->>>>>>> 0ff90c74ba797a32bdea0460b0d8f9a1c5175746
+
 }
 
 class MutableRow(val bb: ByteBuffer, val template: Template) extends Row {

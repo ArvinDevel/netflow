@@ -58,14 +58,13 @@ object LoadConf {
 
   val UNSORTED_PACKETS_DIR = "netflow.load.unsorted.dir"
 
-<<<<<<< HEAD
+
   // orc
   val ORC_STRIPE_SIZE = "netflow.orc.stripe.size"
   val ORC_COMPRESSION = "netflow.orc.compression"
   val ORC_BUFFER_SIZE = "netflow.orc.buffer.size"
   val ORC_ROWINDEX_STRIDE = "netflow.orc.rowIndex.stride"
 
-=======
->>>>>>> 0ff90c74ba797a32bdea0460b0d8f9a1c5175746
+
 }
 

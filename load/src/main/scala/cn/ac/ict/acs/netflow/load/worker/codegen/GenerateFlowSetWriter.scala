@@ -122,13 +122,12 @@ object GenerateFlowSetWriter extends CodeGenerator[Template, InnerWriter] {
     }.mkString("\n")
   }
 
-<<<<<<< HEAD
+
   // 12 28 is the index in netflowFields, cauze Template merge header and netflowFields,
   // the index should be 14 and 30
   // 12.29 Arvin
   // todo : verify sentence above
-=======
->>>>>>> 0ff90c74ba797a32bdea0460b0d8f9a1c5175746
+
   private def bgpWrite(in: Template): String = {
     val bgpTable = BGPRoutingTable.getClass.getName.stripSuffix("$")
     val v4dstIndex = in.keys.indexOf(12)

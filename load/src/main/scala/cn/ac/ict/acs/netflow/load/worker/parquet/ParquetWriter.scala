@@ -41,10 +41,7 @@ class TimelyParquetWriter(val id: Int, val timeBase: Long, val conf: NetFlowConf
   def this(timeBase: Long, conf: NetFlowConf) =
     this(TimelyParquetWriter.writerId.getAndIncrement(), timeBase, conf)
 
-<<<<<<< HEAD
-  //  UNCOMPRESSED  SNAPPY GZIP  LZO
-=======
->>>>>>> 0ff90c74ba797a32bdea0460b0d8f9a1c5175746
+
   val compression = CompressionCodecName.fromConf(
     conf.get(LoadConf.COMPRESSION, CompressionCodecName.UNCOMPRESSED.name()))
   val blockSize =

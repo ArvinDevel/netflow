@@ -1,21 +1,21 @@
 /**
- * Copyright 2015 ICT.
- *
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+  * Copyright 2015 ICT.
+  *
+  * Licensed to the Apache Software Foundation (ASF) under one or more
+  * contributor license agreements.  See the NOTICE file distributed with
+  * this work for additional information regarding copyright ownership.
+  * The ASF licenses this file to You under the Apache License, Version 2.0
+  * (the "License"); you may not use this file except in compliance with
+  * the License.  You may obtain a copy of the License at
+  *
+  *    http://www.apache.org/licenses/LICENSE-2.0
+  *
+  * Unless required by applicable law or agreed to in writing, software
+  * distributed under the License is distributed on an "AS IS" BASIS,
+  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  * See the License for the specific language governing permissions and
+  * limitations under the License.
+  */
 package cn.ac.ict.acs.netflow.load.master
 
 import java.nio.ByteBuffer
@@ -41,7 +41,7 @@ import cn.ac.ict.acs.netflow.util._
 import cn.ac.ict.acs.netflow.ha.{ LeaderElectionAgent, MonarchyLeaderAgent, LeaderElectable }
 
 class LoadMaster(masterHost: String, masterPort: Int, webUiPort: Int, val conf: NetFlowConf)
-    extends Actor with ActorLogReceive with LeaderElectable with Logging {
+  extends Actor with ActorLogReceive with LeaderElectable with Logging {
 
   import DeployMessages._
   import LoadMasterMessages._
@@ -80,8 +80,8 @@ class LoadMaster(masterHost: String, masterPort: Int, webUiPort: Int, val conf: 
   val loadServer = new MasterService(self, conf)
 
   /**
-   * about balance
-   */
+    * about balance
+    */
   // workerIP => (IP,port)
   val workerToPort = new mutable.HashMap[String, (String, Int)]()
   // worker : buffer used rate[0,100]
@@ -168,7 +168,7 @@ class LoadMaster(masterHost: String, masterPort: Int, webUiPort: Int, val conf: 
     }
 
     case RegisterWorker(
-        id, workHost, workPort, cores, memory, webUiPort, workerIP, tcpPort, streamingPort) => {
+    id, workHost, workPort, cores, memory, webUiPort, workerIP, tcpPort, streamingPort) => {
       logInfo("Registering %s %s:%d with %d cores, %s RAM".format(
         id, workHost, workPort, cores, Utils.megabytesToString(memory)))
 
@@ -380,8 +380,8 @@ class LoadMaster(masterHost: String, masterPort: Int, webUiPort: Int, val conf: 
   }
 
   /**
-   *  Check for, and remove, any timed-out workers
-   */
+    *  Check for, and remove, any timed-out workers
+    */
   private def timeOutDeadWorkers() {
     // Copy the workers into an array so we don't modify the hashset while iterating through it
     val currentTime = System.currentTimeMillis()
@@ -401,8 +401,8 @@ class LoadMaster(masterHost: String, masterPort: Int, webUiPort: Int, val conf: 
 
   // ***********************************************************************************
   /**
-   * deal with combine
-   */
+    * deal with combine
+    */
 
   // only for combine server, since we can not get the exact load worker threads number
   // in current time base, so we put the task to load worker by listening HDFS directory
@@ -441,10 +441,10 @@ class LoadMaster(masterHost: String, masterPort: Int, webUiPort: Int, val conf: 
   }
 
   /**
-   * deal with the situation that the worker which is running combine thread,
-   * so we should redo the combine thread on another worker node if the dead
-   * worker is running combine thread.
-   */
+    * deal with the situation that the worker which is running combine thread,
+    * so we should redo the combine thread on another worker node if the dead
+    * worker is running combine thread.
+    */
   private def dealWithCombineError(deadWorker: LoadWorkerInfo): Unit = {
     if (!combineParquetFinished && deadWorker == curCombieWorker) {
       sendCombMessage()
@@ -463,8 +463,8 @@ class LoadMaster(masterHost: String, masterPort: Int, webUiPort: Int, val conf: 
 
   // ***********************************************************************************
   /**
-   *  only for bgp table
-   */
+    *  only for bgp table
+    */
   private val bgpTable = new scala.collection.mutable.HashMap[Int, Array[Byte]]
 
   private def updateBGP(bgpIds: Array[Int], bgpDatas: Array[Array[Byte]]): Unit = {
@@ -569,14 +569,9 @@ class LoadMaster(masterHost: String, masterPort: Int, webUiPort: Int, val conf: 
 
   // ***********************************************************************************
   /**
-   * deal with worker
-   */
+    * deal with worker
+    */
 
-<<<<<<< HEAD
-
-
-=======
->>>>>>> 0ff90c74ba797a32bdea0460b0d8f9a1c5175746
   // called after a worker registered successfully, record workerToUdpPort & workerToCollectors
   private def addNewWorker(workerIP: String, workerPort: Int): Unit = {
     workerToPort += (workerIP -> (workerIP, workerPort))
@@ -600,27 +595,6 @@ class LoadMaster(masterHost: String, masterPort: Int, webUiPort: Int, val conf: 
             return
           }
 
-<<<<<<< HEAD
-          // what's the purpose? why waitQueue which contains receiver IP
-          // should be consistent with workerIp?
-          // maybe in distribution environment, only local data transfer to local is necessary.
-          // TODO:should consider distribution circumtance
-          // Arvin
-          val collectorIP = if (waitQueue.contains(workerIP)) workerIP else waitQueue.head
-
-          // We should tell all the worker Ip to receiver. Arvin
-
-          logInfo("waitQueue Num " + waitQueue.size)
-          loadServer.collector2Socket.get(collectorIP) match {
-            case Some(socket) =>
-              if (socket.isConnected) {
-
-                val reNum = socket.write(cmd)
-                waitQueue.remove(collectorIP)
-                addConnection(workerIP, collectorIP)
-
-                logDebug("after socket write and return No. is " + reNum)
-=======
           val collectorIP = if (waitQueue.contains(workerIP)) workerIP else waitQueue.head
 
           loadServer.collector2Socket.get(collectorIP) match {
@@ -629,7 +603,6 @@ class LoadMaster(masterHost: String, masterPort: Int, webUiPort: Int, val conf: 
                 socket.write(cmd)
                 waitQueue.remove(collectorIP)
                 addConnection(workerIP, collectorIP)
->>>>>>> 0ff90c74ba797a32bdea0460b0d8f9a1c5175746
                 return
               } else {
                 waitQueue.remove(collectorIP)
@@ -640,13 +613,6 @@ class LoadMaster(masterHost: String, masterPort: Int, webUiPort: Int, val conf: 
               waitQueue.remove(collectorIP)
               throw new NetFlowException(s"There is no $collectorIP collector!")
           }
-<<<<<<< HEAD
-
-//          logInfo("waitQueue Num after operation" + waitQueue.size)
-
-
-=======
->>>>>>> 0ff90c74ba797a32bdea0460b0d8f9a1c5175746
         } catch {
           case e: NetFlowException =>
             logWarning(e.getMessage)
@@ -702,8 +668,8 @@ class LoadMaster(masterHost: String, masterPort: Int, webUiPort: Int, val conf: 
 
   // ***********************************************************************************
   /**
-   * deal with receiver
-   */
+    * deal with receiver
+    */
 
   // called when a master receives a message about Delete dead collector
   private def deleteDeadCollector(collectorIP: String): Unit = {
@@ -736,7 +702,7 @@ class LoadMaster(masterHost: String, masterPort: Int, webUiPort: Int, val conf: 
   }
 
   private def selectSuitableWorkers(collector: String,
-    expectWorkerNum: Int): Option[Array[String]] = {
+                                    expectWorkerNum: Int): Option[Array[String]] = {
 
     val availableWorkers = collectorToWorkers.get(collector) match {
       case Some(_workers) =>
@@ -807,13 +773,13 @@ class LoadMaster(masterHost: String, masterPort: Int, webUiPort: Int, val conf: 
 
   // ***********************************************************************************
   /**
-   * deal with balance
-   */
+    * deal with balance
+    */
 
   // notify receiver to change worker
   private def notifyReceiver(receiverHost: String,
-    addWorker: Option[Array[(String, Int)]],
-    deleWorker: Option[Array[(String, Int)]]): Unit = {
+                             addWorker: Option[Array[(String, Int)]],
+                             deleWorker: Option[Array[(String, Int)]]): Unit = {
 
     val res = CommandSet.resWorkerIPs(addWorker, deleWorker)
 
@@ -839,8 +805,8 @@ class LoadMaster(masterHost: String, masterPort: Int, webUiPort: Int, val conf: 
     idToWorker.values.foreach(x => x.actor ! BufferInfo)
 
     def underHalfRateStrategy(
-      availableWorkers: List[(String, Double)],
-      collector: String): Unit = {
+                               availableWorkers: List[(String, Double)],
+                               collector: String): Unit = {
       // when there is a available worker who's rate is under buffer rate,
       // we believe that this worker in enough to deal with this work.
       require(availableWorkers.head._2 <= 0.5)
@@ -856,8 +822,8 @@ class LoadMaster(masterHost: String, masterPort: Int, webUiPort: Int, val conf: 
     }
 
     def underWarnRateStrategy(
-      availableWorkers: List[(String, Double)],
-      collector: String): Unit = {
+                               availableWorkers: List[(String, Double)],
+                               collector: String): Unit = {
       logDebug(s"Select underWarnRateStrategy, current header rate is {availableWorkers.head._2}")
       val adjustSize = Math.min(availableWorkers.size, workerToPort.size / 2)
       val addWorker = new Array[(String, Int)](adjustSize)
@@ -875,9 +841,9 @@ class LoadMaster(masterHost: String, masterPort: Int, webUiPort: Int, val conf: 
     }
 
     def selectStrategy(
-      availableWorkers: List[(String, Double)],
-      collector: String,
-      ConnectOneWorker: Boolean): Unit = {
+                        availableWorkers: List[(String, Double)],
+                        collector: String,
+                        ConnectOneWorker: Boolean): Unit = {
       logDebug(s"Current available worker is ${availableWorkers.head._1}, " +
         s"rate is ${availableWorkers.head._2}")
 
@@ -1016,17 +982,17 @@ object LoadMaster extends Logging {
   }
 
   /**
-   * Start the Master and return a four tuple of:
-   * (1) The Master actor system
-   * (2) The bound port
-   * (3) The web UI bound port
-   */
+    * Start the Master and return a four tuple of:
+    * (1) The Master actor system
+    * (2) The bound port
+    * (3) The web UI bound port
+    */
 
   def startSystemAndActor(
-    host: String,
-    port: Int,
-    webUiPort: Int,
-    conf: NetFlowConf): (ActorSystem, Int, Int) = {
+                           host: String,
+                           port: Int,
+                           webUiPort: Int,
+                           conf: NetFlowConf): (ActorSystem, Int, Int) = {
     val (actorSystem, boundPort) = AkkaUtils.createActorSystem(systemName, host, port, conf)
     val actor = actorSystem.actorOf(
       Props(classOf[LoadMaster], host, boundPort, webUiPort, conf), actorName)

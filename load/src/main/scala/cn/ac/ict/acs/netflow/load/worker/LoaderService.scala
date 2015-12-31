@@ -28,12 +28,10 @@ import cn.ac.ict.acs.netflow.load.worker.parquet.ParquetWriterWrapper
 import cn.ac.ict.acs.netflow.util.ThreadUtils
 import scala.collection._
 
-<<<<<<< HEAD
 // ParquetWriterWrapper with schedule Parquet Writer again, every time slot with one Parquet Writer.
 // cauze parquetwriterwrapper is not single instance class, there will be several wrapper, and
 // each wrapper schedule several parquet writer?
-=======
->>>>>>> 0ff90c74ba797a32bdea0460b0d8f9a1c5175746
+
 final class LoaderService(
     private val workerActor: ActorRef,
     private val bufferList: WrapBufferQueue,
@@ -61,11 +59,7 @@ final class LoaderService(
     logInfo(s"Current total resolving thread number is ${_curThreadsNum}, " +
       s" and will be adjust to $newThreadNum ")
 
-<<<<<<< HEAD
 
-
-=======
->>>>>>> 0ff90c74ba797a32bdea0460b0d8f9a1c5175746
     if (newThreadNum > _curThreadsNum) {
       // increase threads
       for (i <- 0 until (newThreadNum - _curThreadsNum))
@@ -121,10 +115,9 @@ final class LoaderService(
       private val writer = new ParquetWriterWrapper(workerActor, conf)
 
       // num/ms
-<<<<<<< HEAD
+
       // this statistic just calculate number/time 12.22 Arvin
-=======
->>>>>>> 0ff90c74ba797a32bdea0460b0d8f9a1c5175746
+
       private def getCurrentRate: Double = {
         val rate = 1.0 * packageCount / (System.currentTimeMillis() - startTime)
         startTime = System.currentTimeMillis()
@@ -160,12 +153,10 @@ final class LoaderService(
             val (flowSets, packetTime) = parse(data.buffer.duplicate())
             while (flowSets.hasNext) {
               val fs = flowSets.next()
-<<<<<<< HEAD
+
               // just store flowSet, ignore header,
               writer.write(fs, packetTime)// and flowSet has recorded time. Arvin
-=======
-              writer.write(fs, packetTime)
->>>>>>> 0ff90c74ba797a32bdea0460b0d8f9a1c5175746
+
             }
             bufferPool.release(data)
           }

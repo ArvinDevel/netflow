@@ -1,21 +1,21 @@
 /**
- * Copyright 2015 ICT.
- *
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+  * Copyright 2015 ICT.
+  *
+  * Licensed to the Apache Software Foundation (ASF) under one or more
+  * contributor license agreements.  See the NOTICE file distributed with
+  * this work for additional information regarding copyright ownership.
+  * The ASF licenses this file to You under the Apache License, Version 2.0
+  * (the "License"); you may not use this file except in compliance with
+  * the License.  You may obtain a copy of the License at
+  *
+  *    http://www.apache.org/licenses/LICENSE-2.0
+  *
+  * Unless required by applicable law or agreed to in writing, software
+  * distributed under the License is distributed on an "AS IS" BASIS,
+  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  * See the License for the specific language governing permissions and
+  * limitations under the License.
+  */
 package cn.ac.ict.acs.netflow.load.master
 
 import java.io.IOException
@@ -31,7 +31,7 @@ import cn.ac.ict.acs.netflow.util.Utils
 import scala.collection.mutable
 
 class MasterService(val master: ActorRef, val conf: NetFlowConf)
-    extends Thread with Logging {
+  extends Thread with Logging {
 
   // get the tcp thread runner
   private var actualPort: Int = 0
@@ -43,10 +43,6 @@ class MasterService(val master: ActorRef, val conf: NetFlowConf)
   // contain its ip str and channel
   private val ipToChannel = mutable.HashMap.empty[String, SocketChannel]
 
-<<<<<<< HEAD
-
-=======
->>>>>>> 0ff90c74ba797a32bdea0460b0d8f9a1c5175746
   def getActualPort: Int = {
     val retryTimes = 4
     var i = 0
@@ -58,11 +54,7 @@ class MasterService(val master: ActorRef, val conf: NetFlowConf)
     actualPort
   }
 
-<<<<<<< HEAD
-  def collector2Socket =  ipToChannel
-=======
   def collector2Socket = ipToChannel
->>>>>>> 0ff90c74ba797a32bdea0460b0d8f9a1c5175746
 
   override def run(): Unit = {
     val serverSocketChannel = ServerSocketChannel.open()
@@ -128,10 +120,6 @@ class MasterService(val master: ActorRef, val conf: NetFlowConf)
       .getAddress.getHostAddress
   }
 
-<<<<<<< HEAD
-
-=======
->>>>>>> 0ff90c74ba797a32bdea0460b0d8f9a1c5175746
   /** Accept remote connection */
   private def registerChannel(sk: SelectionKey): Unit = {
     // connect socket
@@ -139,21 +127,10 @@ class MasterService(val master: ActorRef, val conf: NetFlowConf)
     socketChannel.configureBlocking(false)
     socketChannel.register(selector, SelectionKey.OP_READ).attach(new PacketHolder)
 
-<<<<<<< HEAD
-    channels += socketChannel
-
-    val _remoteIP = getRemoteIp(socketChannel)
-    ipToChannel(_remoteIP) = socketChannel
-    logInfo(s"Open connection from ${_remoteIP}.")
-
-
-
-=======
     val _remoteIP = getRemoteIp(socketChannel)
     channels += socketChannel
     ipToChannel(_remoteIP) = socketChannel
     logInfo(s"Open connection from ${_remoteIP}.")
->>>>>>> 0ff90c74ba797a32bdea0460b0d8f9a1c5175746
   }
 
   /** Read at most 1 packet from the connection */
@@ -202,23 +179,12 @@ class MasterService(val master: ActorRef, val conf: NetFlowConf)
     key.attach(null)
     key.cancel()
     val c = key.channel()
-<<<<<<< HEAD
-    c.close()
-    channels -= c
-
-    val collectorIP = getRemoteIp(c.asInstanceOf[SocketChannel])
-    ipToChannel -= collectorIP
-    master ! DeleReceiver(collectorIP)
-
-
-=======
     val collectorIP = getRemoteIp(c.asInstanceOf[SocketChannel])
     c.close()
     channels -= c
 
     ipToChannel -= collectorIP
     master ! DeleReceiver(collectorIP)
->>>>>>> 0ff90c74ba797a32bdea0460b0d8f9a1c5175746
   }
 
   private def dealWithCommand(curChannel: SocketChannel, data: ByteBuffer): Unit = {
@@ -234,11 +200,6 @@ class MasterService(val master: ActorRef, val conf: NetFlowConf)
       }
       val remoteIP = getRemoteIp(curChannel)
       logDebug(s"Tell master request a worker ip for $remoteIP")
-<<<<<<< HEAD
-
-
-=======
->>>>>>> 0ff90c74ba797a32bdea0460b0d8f9a1c5175746
       master ! RequestWorker(remoteIP)
     }
   }
@@ -252,10 +213,10 @@ class MasterService(val master: ActorRef, val conf: NetFlowConf)
 object CommandSet extends Logging {
 
   /**
-   * define the message format: + total length (short)
-   *  request workers : $$1&-1;3.4.5.6:1000&+2;1.2.3.4:1000;2.2.2.2:1234
-   *  rules: $$2&ip1:1;ip2:1&ipA;ipB
-   */
+    * define the message format: + total length (short)
+    *  request workers : $$1&-1;3.4.5.6:1000&+2;1.2.3.4:1000;2.2.2.2:1234
+    *  rules: $$2&ip1:1;ip2:1&ipA;ipB
+    */
   object CmdStruct {
 
     // massage idx
@@ -271,16 +232,10 @@ object CommandSet extends Logging {
   }
   import CmdStruct._
 
-<<<<<<< HEAD
-  // can't imagine which message need 1500 bytes?
-  // change to 100
-  // 12.24 Arvin
+  // 100 is enough
+  // 12.31 Arvin
   private val req_buffer = ByteBuffer.allocate(100)
   private val res_buffer = ByteBuffer.allocate(100)
-=======
-  private val req_buffer = ByteBuffer.allocate(1500)
-  private val res_buffer = ByteBuffer.allocate(1500)
->>>>>>> 0ff90c74ba797a32bdea0460b0d8f9a1c5175746
 
   private val sb = new StringBuilder
 
@@ -304,15 +259,15 @@ object CommandSet extends Logging {
   }
 
   /**
-   *    $$1&+2;1.2.3.4:1000;2.2.2.2:1234
-   *    $$1&-1;3.4.5.6:1000
-   *    $$1&-1;3.4.5.6:1000&+2;1.2.3.4:1000;2.2.2.2:1234
-   * @param addIpAdds
-   * @param deleIpAdds
-   * @return
-   */
+    *    $$1&+2;1.2.3.4:1000;2.2.2.2:1234
+    *    $$1&-1;3.4.5.6:1000
+    *    $$1&-1;3.4.5.6:1000&+2;1.2.3.4:1000;2.2.2.2:1234
+    * @param addIpAdds
+    * @param deleIpAdds
+    * @return
+    */
   def resWorkerIPs(addIpAdds: Option[Array[(String, Int)]],
-    deleIpAdds: Option[Array[(String, Int)]]): ByteBuffer = {
+                   deleIpAdds: Option[Array[(String, Int)]]): ByteBuffer = {
 
     def groupData(typse: String, ipAdds: Option[Array[(String, Int)]]): String = {
       ipAdds match {
@@ -331,21 +286,21 @@ object CommandSet extends Logging {
   }
 
   /**
-   *   $$2&key&value
-   * @param key
-   * @param value
-   * @return
-   */
+    *   $$2&key&value
+    * @param key
+    * @param value
+    * @return
+    */
   def resRules(key: String, value: String): ByteBuffer = {
     buildCmd(rules, key, value)
   }
 
   /**
-   * check if nor not the data is the request data
-   * type = 3
-   * @param data
-   * @return
-   */
+    * check if nor not the data is the request data
+    * type = 3
+    * @param data
+    * @return
+    */
   def isReqWorkerList(data: ByteBuffer): Boolean = {
     if (data.array.startsWith(msg_prefix.getBytes)) {
       data.array()(msg_prefix.length) == 3

@@ -38,12 +38,11 @@ case class TemplateKey(routerIp: Array[Byte], templateId: Int) {
   }
 }
 
-<<<<<<< HEAD
+
 // Template has expired time in collector, should care in real practice
 // LoadWorker's source is collector or the router? even from collector should care
 // 12.30 Arvin
-=======
->>>>>>> 0ff90c74ba797a32bdea0460b0d8f9a1c5175746
+
 class Template(val tmpId: Int, val fieldsCount: Int) {
 
   var rowLength = 0

@@ -86,12 +86,11 @@ class LoadWorkerArguments(args: Array[String], conf: NetFlowConf) {
         printUsageAndExit(1)
       }
       masters = value.stripPrefix("netflow-load://").split(",").map("netflow-load://" + _)
-<<<<<<< HEAD
+
 //     can't get master, so where does it come from? maybe conf.file --> to solve
 //      connection refuse, one is 127.0.0.1 and the other is ip catched by NIC.
 //      println("parse Args: master is " + masters.toString + "in " + getClass )
-=======
->>>>>>> 0ff90c74ba797a32bdea0460b0d8f9a1c5175746
+
       parse(tail)
 
     case Nil =>

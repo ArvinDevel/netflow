@@ -1,27 +1,23 @@
 /**
- * Copyright 2015 ICT.
- *
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+  * Copyright 2015 ICT.
+  *
+  * Licensed to the Apache Software Foundation (ASF) under one or more
+  * contributor license agreements.  See the NOTICE file distributed with
+  * this work for additional information regarding copyright ownership.
+  * The ASF licenses this file to You under the Apache License, Version 2.0
+  * (the "License"); you may not use this file except in compliance with
+  * the License.  You may obtain a copy of the License at
+  *
+  *    http://www.apache.org/licenses/LICENSE-2.0
+  *
+  * Unless required by applicable law or agreed to in writing, software
+  * distributed under the License is distributed on an "AS IS" BASIS,
+  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  * See the License for the specific language governing permissions and
+  * limitations under the License.
+  */
 package cn.ac.ict.acs.netflow.load.worker
 
-<<<<<<< HEAD
-
-=======
->>>>>>> 0ff90c74ba797a32bdea0460b0d8f9a1c5175746
 import java.io.{ IOException, FileNotFoundException }
 
 import akka.actor.ActorSelection
@@ -36,11 +32,11 @@ import cn.ac.ict.acs.netflow.load.LoadMessages.CombineFinished
 import cn.ac.ict.acs.netflow.{ NetFlowException, NetFlowConf, Logging }
 
 /**
- * Combine the parquet directory
- * Created by ayscb on 15-6-15.
- */
+  * Combine the parquet directory
+  * Created by ayscb on 15-6-15.
+  */
 class CombineService(val timestamp: Long, val master: ActorSelection, val conf: NetFlowConf)
-    extends Thread with Logging {
+  extends Thread with Logging {
 
   object ParquetState extends Enumeration {
     type ParquetState = Value
@@ -101,11 +97,11 @@ class CombineService(val timestamp: Long, val master: ActorSelection, val conf: 
   }
 
   /**
-   * Valid this directory is a correct path
-   * @param fs hadoop file system
-   * @param dirPath directory path
-   * @return
-   */
+    * Valid this directory is a correct path
+    * @param fs hadoop file system
+    * @param dirPath directory path
+    * @return
+    */
   private def validDirectory(fs: FileSystem, dirPath: Path): Boolean = {
     val pathStr = dirPath.toUri.toString
     try {
@@ -155,11 +151,11 @@ class CombineService(val timestamp: Long, val master: ActorSelection, val conf: 
   }
 
   /**
-   * only all sub parquet files are ready that we can combine the parquet file
-   * @param fs hadoop file system
-   * @param fPath  directory path
-   * @return
-   */
+    * only all sub parquet files are ready that we can combine the parquet file
+    * @param fs hadoop file system
+    * @param fPath  directory path
+    * @return
+    */
   private def combineFiles(fs: FileSystem, fPath: Path): ParquetState.Value = {
 
     val filterFiles =
@@ -221,10 +217,10 @@ class CombineService(val timestamp: Long, val master: ActorSelection, val conf: 
   }
 
   /**
-   * merge all parquet files in to output path
-   * @param fs hadoop file system
-   * @param fPath  directory path
-   */
+    * merge all parquet files in to output path
+    * @param fs hadoop file system
+    * @param fPath  directory path
+    */
   private def mergeParquetFiles(fs: FileSystem, fPath: Path): ParquetState.Value = {
 
     try {
@@ -253,11 +249,11 @@ class CombineService(val timestamp: Long, val master: ActorSelection, val conf: 
   }
 
   /**
-   * Delete the _temporary directory and write a success file
-   * to stand for finish combine process
-   * @param fs hadoop file system
-   * @param fPath  directory path
-   */
+    * Delete the _temporary directory and write a success file
+    * to stand for finish combine process
+    * @param fs hadoop file system
+    * @param fPath  directory path
+    */
   private def finishCombine(fs: FileSystem, fPath: Path): Unit = {
     val pathStr = fPath.toUri.toString
     val tempDir = new Path(fPath, LoadConf.TEMP_DIRECTORY)

@@ -23,14 +23,7 @@ import java.util.concurrent.ConcurrentHashMap
 
 import cn.ac.ict.acs.netflow.load.worker.DataFlowSet
 
-<<<<<<< HEAD
 
-// The packetTime is just get Unix Time, it was not carried by DataFlowSet Packet.
-// can get NetFlow Time from Header, maybe this time was just for test.12.22 Arvin
-// before the data, there is a router Ip,(ipLen,ip),
-// Are these added by router? or receiver for test? 12.23 Arvin
-=======
->>>>>>> 0ff90c74ba797a32bdea0460b0d8f9a1c5175746
 object PacketParser {
   val templates = new ConcurrentHashMap[TemplateKey, Template]
 
@@ -57,11 +50,9 @@ object PacketParser {
       case 5 =>
 
         val nfTime = System.currentTimeMillis()
-<<<<<<< HEAD
+
 //         nfParser.getTime(packet, packetStart)
-=======
-        // nfParser.getTime(packet, packetStart)
->>>>>>> 0ff90c74ba797a32bdea0460b0d8f9a1c5175746
+
 
         // 2. skip to netflow body position
         val bodyStart = V5Parser.getBodyPos(packetStart)
@@ -76,11 +67,9 @@ object PacketParser {
       case 9 =>
 
         val nfTime = System.currentTimeMillis()
-<<<<<<< HEAD
+
 //         nfParser.getTime(packet, packetStart)
-=======
-        // nfParser.getTime(packet, packetStart)
->>>>>>> 0ff90c74ba797a32bdea0460b0d8f9a1c5175746
+
 
         // 2. skip to netflow body position
         val bodyStart = V9Parser.getBodyPos(packetStart)

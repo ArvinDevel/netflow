@@ -49,10 +49,7 @@ trait VersionedParser {
 
 }
 
-<<<<<<< HEAD
-// flowSet include template FlowSet and dataFlowset 12.23 Arvin
-=======
->>>>>>> 0ff90c74ba797a32bdea0460b0d8f9a1c5175746
+
 /**
  * V9 format
  * --------------header---------------

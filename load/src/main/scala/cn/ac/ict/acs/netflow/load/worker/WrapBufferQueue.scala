@@ -1,30 +1,26 @@
 /**
- * Copyright 2015 ICT.
- *
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+  * Copyright 2015 ICT.
+  *
+  * Licensed to the Apache Software Foundation (ASF) under one or more
+  * contributor license agreements.  See the NOTICE file distributed with
+  * this work for additional information regarding copyright ownership.
+  * The ASF licenses this file to You under the Apache License, Version 2.0
+  * (the "License"); you may not use this file except in compliance with
+  * the License.  You may obtain a copy of the License at
+  *
+  *    http://www.apache.org/licenses/LICENSE-2.0
+  *
+  * Unless required by applicable law or agreed to in writing, software
+  * distributed under the License is distributed on an "AS IS" BASIS,
+  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  * See the License for the specific language governing permissions and
+  * limitations under the License.
+  */
 package cn.ac.ict.acs.netflow.load.worker
 
 import java.nio.ByteBuffer
 import java.util.concurrent.atomic.{AtomicInteger, AtomicLong}
-<<<<<<< HEAD
-import java.util.concurrent._
-=======
 import java.util.concurrent.{ TimeUnit, Executors, LinkedBlockingQueue, LinkedBlockingDeque }
->>>>>>> 0ff90c74ba797a32bdea0460b0d8f9a1c5175746
 
 import cn.ac.ict.acs.netflow.load.LoadConf
 import cn.ac.ict.acs.netflow.load.util.ShareableBuffer
@@ -70,9 +66,9 @@ object WrapBufferQueue {
 }
 
 class WrapBufferQueue(
-    val loadBalanceStrategyFunc: () => Unit,
-    val sendOverflowMessage: () => Unit,
-    val conf: NetFlowConf) extends Logging {
+                       val loadBalanceStrategyFunc: () => Unit,
+                       val sendOverflowMessage: () => Unit,
+                       val conf: NetFlowConf) extends Logging {
 
   val maxQueueNum = conf.getInt(LoadConf.QUEUE_MAXPACKAGE_NUM, 1 * 1024 * 1024)
   val warnThreshold = {
@@ -86,13 +82,7 @@ class WrapBufferQueue(
     (((warnThreshold - 20) * 1.0 / 100) * maxQueueNum).asInstanceOf[Int]
   private val warnThresholdNum = ((warnThreshold * 1.0 / 100) * maxQueueNum).asInstanceOf[Int]
 
-<<<<<<< HEAD
-   private val bufferQueue = new LinkedBlockingQueue[ByteBuffer](maxQueueNum)
-
-
-=======
   private val bufferQueue = new LinkedBlockingQueue[ByteBuffer](maxQueueNum)
->>>>>>> 0ff90c74ba797a32bdea0460b0d8f9a1c5175746
 
   @volatile private var reportMasterFlag: Boolean = false
   @volatile private var reportWorkerFlag: Boolean = false
@@ -112,10 +102,10 @@ class WrapBufferQueue(
   val lock = new LockLockLock
 
   /**
-   * User of this method should guarantee not to change the buffer's state
-   * since it is shared with another parquet writer thread
-   * @return
-   */
+    * User of this method should guarantee not to change the buffer's state
+    * since it is shared with another parquet writer thread
+    * @return
+    */
   def currentPacket: ShareableBuffer = {
     lock.synchronized {
       while (_currentPacket == null || _previousPacket == _currentPacket) {
@@ -126,13 +116,7 @@ class WrapBufferQueue(
     _currentPacket
   }
 
-<<<<<<< HEAD
-
   // get the element from queue, block when the queue is empty
-  // why notify? 12.22 Arvin -- to keep the currentPacket consistency,but this cost much
-=======
-  // get the element from queue, block when the queue is empty
->>>>>>> 0ff90c74ba797a32bdea0460b0d8f9a1c5175746
   def take(): ShareableBuffer = {
     val data = ShareableBuffer(bufferQueue.take())
     dequeueCount.addAndGet(data.buffer.capacity())
@@ -144,26 +128,12 @@ class WrapBufferQueue(
   }
 
   // put the element to queue, block when the queue is full
-<<<<<<< HEAD
-  // take use lock, put doesn't use lock?! 12.20 Arvin -- cauze bufferQueue use LinkedBlockingQueue,
-  // user need'nt care lock.
-=======
->>>>>>> 0ff90c74ba797a32bdea0460b0d8f9a1c5175746
   def put(byteBuffer: ByteBuffer): Unit = {
     checkThreshold()
     bufferQueue.put(byteBuffer)
     enqueueCount.addAndGet(byteBuffer.capacity())
   }
 
-<<<<<<< HEAD
-
-
-  // how these metrics below transfer to ganglia?
-  // 12.23 Arvin
-
-
-=======
->>>>>>> 0ff90c74ba797a32bdea0460b0d8f9a1c5175746
   def currSize = bufferQueue.size()
   def currUsageRate(): Double = 1.0 * bufferQueue.size() / maxQueueNum
 
