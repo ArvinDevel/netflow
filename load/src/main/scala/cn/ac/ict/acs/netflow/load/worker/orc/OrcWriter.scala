@@ -37,9 +37,7 @@ import org.apache.hadoop.hive.ql.io.orc.{CompressionKind, OrcFile, OrcSerde}
 import org.apache.hadoop.hive.serde2.objectinspector._
 import org.apache.hadoop.hive.serde2.typeinfo.TypeInfoUtils
 
-// OrcWriter, the contract is below:
-// 1)first call init() to init OrcWriter
-// 2)
+
 
 class OrcWriter (val id: Int, val timeBase: Long, val conf: NetFlowConf
                 )
@@ -216,46 +214,7 @@ class OrcWriter (val id: Int, val timeBase: Long, val conf: NetFlowConf
       })
 
   }
-  /*
-  // Used to hold temporary `Writable` fields of the next row to be written.
-  private val reusableOutputBuffer = new Array[Any](fieldNames.length)
-
-
-  // `OrcRecordWriter.close()` creates an empty file if no rows are written at all.  We use this
-  // flag to decide whether `OrcRecordWriter.close()` needs to be called.
-  private var recordWriterInstantiated = false
-
-  private lazy val recordWriter: RecordWriter[NullWritable, Writable] = {
-    recordWriterInstantiated = true
-
-    val conf = getConfigurationFromJobContext(context)
-    val uniqueWriteJobId = conf.get("spark.sql.sources.writeJobUUID")
-
-    new OrcOutputFormat().getRecordWriter(
-      outputFile.getFileSystem(conf),
-      conf.asInstanceOf[JobConf],
-      outputFile.toString,
-      Reporter.NULL
-    ).asInstanceOf[RecordWriter[NullWritable, Writable]]
-  }
-
-  override def write(flowSet: DataFlowSet): Unit ={
-
-    prepareForWrite(flowSet)
-
-    recordWriter.write(
-      NullWritable.get(),
-      serializer.serialize(reusableOutputBuffer, structOI))
-
-
-  }
-  override def close(): Unit = {
-    if (recordWriterInstantiated) {
-      recordWriter.close(Reporter.NULL)
-    }
-  }
-
-  */
+  
 
   override def init(): Unit = {
 
