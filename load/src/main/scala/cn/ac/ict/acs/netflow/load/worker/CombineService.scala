@@ -21,6 +21,7 @@ package cn.ac.ict.acs.netflow.load.worker
 import java.io.{ IOException, FileNotFoundException }
 
 import akka.actor.ActorSelection
+import org.apache.hadoop.hive.ql.io.orc.OrcFile
 
 import org.apache.parquet.hadoop.{ ParquetFileWriter, ParquetFileReader }
 
@@ -35,7 +36,8 @@ import cn.ac.ict.acs.netflow.{ NetFlowException, NetFlowConf, Logging }
   * Combine the parquet directory
   * Created by ayscb on 15-6-15.
   */
-class CombineService(val timestamp: Long, val master: ActorSelection, val conf: NetFlowConf)
+class CombineService(val timestamp: Long, val master: ActorSelection, val conf: NetFlowConf,
+                     val fileType: Int)
   extends Thread with Logging {
 
   object ParquetState extends Enumeration {
@@ -126,12 +128,13 @@ class CombineService(val timestamp: Long, val master: ActorSelection, val conf: 
 
       ls.exists(file => {
         val name = file.getPath.getName
-        name.endsWith(".parquet") || name.equalsIgnoreCase(LoadConf.TEMP_DIRECTORY)
+        name.endsWith(".parquet") ||name.endsWith(".orc")||
+          name.equalsIgnoreCase(LoadConf.TEMP_DIRECTORY)
       }) match {
         case true => true
         case false =>
           logError(s"In directory ${dirPath.toUri.toString}, " +
-            s"expect contain '.parquet' files or directory $pathStr, " +
+            s"expect contain '.parquet' files or '.orc' files or directory $pathStr, " +
             s"but now all of them don' t exist ")
           master ! CombineFinished(CombineStatus.UNKNOWN_DIRECTORY)
           false
@@ -157,6 +160,13 @@ class CombineService(val timestamp: Long, val master: ActorSelection, val conf: 
     * @return
     */
   private def combineFiles(fs: FileSystem, fPath: Path): ParquetState.Value = {
+
+    // directly return true if the format is orc
+    // 1.25 Arvin
+    if(fileType == 1){
+      finishCombine(fs,fPath)
+      return ParquetState.FINISH
+    }
 
     val filterFiles =
       fs.listStatus(fPath).filter(filter => filter.getPath.getName.startsWith("_"))
@@ -228,6 +238,9 @@ class CombineService(val timestamp: Long, val master: ActorSelection, val conf: 
       val outputStatus = fs.getFileStatus(fPath)
       val footers =
         ParquetFileReader.readAllFootersInParallel(conf.hadoopConfiguration, outputStatus)
+      //      val orcReader =  OrcFile.createReader(fs,fPath)
+
+
 
       ParquetFileWriter.writeMetadataFile(conf.hadoopConfiguration, outputStatus.getPath, footers)
 

@@ -22,6 +22,8 @@ import java.net.InetAddress
 import java.util
 import java.util.UUID
 
+import cn.ac.ict.acs.netflow.load.LoadMessages.{CombineOrc, OrcWriterClosed}
+
 import scala.util.Random
 import scala.concurrent.duration._
 
@@ -136,7 +138,7 @@ class LoadWorker(
 
     val defaultWriterNum = conf.getInt(LoadConf.WRITER_NUMBER, 1)
 
-    logInfo(s"Init write parquet pool, and will start $defaultWriterNum threads")
+    logInfo(s"Init writer pool, and will start $defaultWriterNum threads")
     loadServer.initParquetWriterPool(defaultWriterNum)
     receiverServer.start()
     streamingServer.start()
@@ -202,7 +204,20 @@ class LoadWorker(
 
     // this message is sent by master to assigned this worker to run combine service
     case CombineParquet(fileStamp) =>
-      new CombineService(fileStamp, master, conf).start()
+      new CombineService(fileStamp, master, conf, 0).start()
+
+    // the message is sent by loadService to tell load worker to combine whole orc
+    case OrcWriterClosed(timeStamp) =>
+      if (connected && combineTimeStamp != timeStamp) {
+        combineTimeStamp = timeStamp
+        master ! OrcWriterClosed(combineTimeStamp)
+      }
+
+    case CombineOrc(fileStamp) =>
+      new CombineService(fileStamp, master, conf, 1).start()
+
+
+
 
     /**
       * deal with buffer info message
@@ -417,6 +432,10 @@ object LoadWorker extends Logging {
   def main(argStrings: Array[String]) {
     SignalLogger.register(log)
     val conf = new NetFlowConf
+
+    // to test
+    //    conf.set("netflow.writer.type","orc")
+
     val args = new LoadWorkerArguments(argStrings, conf)
 
     val (actorSystem, _) = startSystemAndActor(args.host, args.port, args.webUiPort,

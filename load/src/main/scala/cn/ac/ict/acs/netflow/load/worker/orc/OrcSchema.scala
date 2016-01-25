@@ -24,7 +24,7 @@
   */
 package cn.ac.ict.acs.netflow.load.worker.orc
 
-import cn.ac.ict.acs.netflow.Logging
+import cn.ac.ict.acs.netflow.{NetFlowException, Logging}
 
 // currently can't make sure that JavaConstantbinaryObjectInspector
 // is which type's reference ,maybe not "binary"
@@ -45,8 +45,7 @@ object OrcSchema extends Logging{
   headerFields(2) =  "router_ipv6"
   headerFields(3) = null
   headerFields(4) = null
-  // ToDo: make sure types name in ORc
-  headerFieldsTypes(0) = "binary"
+  headerFieldsTypes(0) = "bigint"
   headerFieldsTypes(1) = "binary"
   headerFieldsTypes(2) = "binary"
   headerFieldsTypes(3) = null
@@ -75,7 +74,7 @@ object OrcSchema extends Logging{
   bgpFieldsTypes(8) = "binary"
 
   private val netflowFields = new Array[String](101)
-  private val netflowFieldsTypes = new Array[String](101)
+  val netflowFieldsTypes = new Array[String](101)
   netflowFields(0) = null
   // 1-10
   netflowFields(1) =  "in_bytes"
@@ -199,99 +198,99 @@ object OrcSchema extends Logging{
 
   netflowFieldsTypes(0) = null
   // 1-10
-  netflowFieldsTypes(1) = "binary"
-  netflowFieldsTypes(2) = "binary"
-  netflowFieldsTypes(3) = "binary"
-  netflowFieldsTypes(4) = "binary"
-  netflowFieldsTypes(5) = "binary"
-  netflowFieldsTypes(6) = "binary"
-  netflowFieldsTypes(7) = "binary"
+  netflowFieldsTypes(1) = "bigint"
+  netflowFieldsTypes(2) = "bigint"
+  netflowFieldsTypes(3) = "bigint"
+  netflowFieldsTypes(4) = "int"
+  netflowFieldsTypes(5) = "int"
+  netflowFieldsTypes(6) = "int"
+  netflowFieldsTypes(7) = "int"
   netflowFieldsTypes(8) = "binary"
-  netflowFieldsTypes(9) = "binary"
-  netflowFieldsTypes(10) = "binary"
+  netflowFieldsTypes(9) = "int"
+  netflowFieldsTypes(10) = "bigint"
 
   // 11-20
-  netflowFieldsTypes(11) = "binary"
+  netflowFieldsTypes(11) = "int"
   netflowFieldsTypes(12) = "binary"
-  netflowFieldsTypes(13) = "binary"
-  netflowFieldsTypes(14) = "binary"
+  netflowFieldsTypes(13) = "int"
+  netflowFieldsTypes(14) = "bigint"
   netflowFieldsTypes(15) = "binary"
-  netflowFieldsTypes(16) = "binary"
-  netflowFieldsTypes(17) = "binary"
+  netflowFieldsTypes(16) = "bigint"
+  netflowFieldsTypes(17) = "bigint"
   netflowFieldsTypes(18) = "binary"
-  netflowFieldsTypes(19) = "binary"
-  netflowFieldsTypes(20) = "binary"
+  netflowFieldsTypes(19) = "bigint"
+  netflowFieldsTypes(20) = "bigint"
 
   // 21-30
-  netflowFieldsTypes(21) = "binary"
-  netflowFieldsTypes(22) = "binary"
-  netflowFieldsTypes(23) = "binary"
-  netflowFieldsTypes(24) = "binary"
-  netflowFieldsTypes(25) = "binary"
-  netflowFieldsTypes(26) = "binary"
+  netflowFieldsTypes(21) = "bigint"
+  netflowFieldsTypes(22) = "bigint"
+  netflowFieldsTypes(23) = "bigint"
+  netflowFieldsTypes(24) = "bigint"
+  netflowFieldsTypes(25) = "int"
+  netflowFieldsTypes(26) = "int"
   netflowFieldsTypes(27) = "binary"
   netflowFieldsTypes(28) = "binary"
-  netflowFieldsTypes(29) = "binary"
-  netflowFieldsTypes(30) = "binary"
+  netflowFieldsTypes(29) = "int"
+  netflowFieldsTypes(30) = "int"
 
   // 31-40
-  netflowFieldsTypes(31) = "binary" // ipv6 only use 20bit
-  netflowFieldsTypes(32) = "binary"
-  netflowFieldsTypes(33) = "binary"
-  netflowFieldsTypes(34) = "binary"
-  netflowFieldsTypes(35) = "binary"
-  netflowFieldsTypes(36) = "binary"
-  netflowFieldsTypes(37) = "binary"
-  netflowFieldsTypes(38) = "binary"
-  netflowFieldsTypes(39) = "binary"
-  netflowFieldsTypes(40) = "binary"
+  netflowFieldsTypes(31) = "int" // ipv6 only use 20bit
+  netflowFieldsTypes(32) = "int"
+  netflowFieldsTypes(33) = "int"
+  netflowFieldsTypes(34) = "bigint"
+  netflowFieldsTypes(35) = "int"
+  netflowFieldsTypes(36) = "int"
+  netflowFieldsTypes(37) = "int"
+  netflowFieldsTypes(38) = "int"
+  netflowFieldsTypes(39) = "int"
+  netflowFieldsTypes(40) = "bigint"
 
   // 41-50
-  netflowFieldsTypes(41) = "binary"
-  netflowFieldsTypes(42) = "binary"
+  netflowFieldsTypes(41) = "bigint"
+  netflowFieldsTypes(42) = "bigint"
   netflowFieldsTypes(43) = null // *Vendor Proprietary
-  netflowFieldsTypes(44) = "binary"
-  netflowFieldsTypes(45) = "binary"
-  netflowFieldsTypes(46) = "binary"
+  netflowFieldsTypes(44) = "bigint"
+  netflowFieldsTypes(45) = "bigint"
+  netflowFieldsTypes(46) = "int"
   netflowFieldsTypes(47) = "binary"
-  netflowFieldsTypes(48) = "binary"
-  netflowFieldsTypes(49) = "binary"
-  netflowFieldsTypes(50) = "binary"
+  netflowFieldsTypes(48) = "int"
+  netflowFieldsTypes(49) = "int"
+  netflowFieldsTypes(50) = "bigint"
 
   // 51-60
   netflowFieldsTypes(51) = null // *Vendor Proprietary
-  netflowFieldsTypes(52) = "binary"
-  netflowFieldsTypes(53) = "binary"
-  netflowFieldsTypes(54) = "binary"
-  netflowFieldsTypes(55) = "binary"
+  netflowFieldsTypes(52) = "int"
+  netflowFieldsTypes(53) = "int"
+  netflowFieldsTypes(54) = "int"
+  netflowFieldsTypes(55) = "int"
   netflowFieldsTypes(56) = "binary"
   netflowFieldsTypes(57) = "binary"
-  netflowFieldsTypes(58) = "binary"
-  netflowFieldsTypes(59) = "binary"
-  netflowFieldsTypes(60) = "binary"
+  netflowFieldsTypes(58) = "int"
+  netflowFieldsTypes(59) = "int"
+  netflowFieldsTypes(60) = "int"
 
   // 61-70
-  netflowFieldsTypes(61) = "binary"
+  netflowFieldsTypes(61) = "int"
   netflowFieldsTypes(62) = "binary"
   netflowFieldsTypes(63) = "binary"
-  netflowFieldsTypes(64) = "binary"
+  netflowFieldsTypes(64) = "bigint"
   netflowFieldsTypes(65) = null // *Vendor Proprietary
   netflowFieldsTypes(66) = null // *Vendor Proprietary
   netflowFieldsTypes(67) = null // *Vendor Proprietary
   netflowFieldsTypes(68) = null // *Vendor Proprietary
   netflowFieldsTypes(69) = null // *Vendor Proprietary
-  netflowFieldsTypes(70) = "binary" // contain 20bit
+  netflowFieldsTypes(70) = "int" // contain 20bit
 
   // 71-80
-  netflowFieldsTypes(71) = "binary" // contain 20bit
-  netflowFieldsTypes(72) = "binary"  // contain 20bit
-  netflowFieldsTypes(73) = "binary" // contain 20bit
-  netflowFieldsTypes(74) = "binary" // contain 20bit
-  netflowFieldsTypes(75) = "binary"  // contain 20bit
-  netflowFieldsTypes(76) = "binary"  // contain 20bit
-  netflowFieldsTypes(77) = "binary"  // contain 20bit
-  netflowFieldsTypes(78) = "binary"  // contain 20bit
-  netflowFieldsTypes(79) = "binary"  // contain 20bit
+  netflowFieldsTypes(71) = "int" // contain 20bit
+  netflowFieldsTypes(72) = "int"  // contain 20bit
+  netflowFieldsTypes(73) = "int" // contain 20bit
+  netflowFieldsTypes(74) = "int" // contain 20bit
+  netflowFieldsTypes(75) = "int"  // contain 20bit
+  netflowFieldsTypes(76) = "int"  // contain 20bit
+  netflowFieldsTypes(77) = "int"  // contain 20bit
+  netflowFieldsTypes(78) = "int"  // contain 20bit
+  netflowFieldsTypes(79) = "int"  // contain 20bit
   netflowFieldsTypes(80) = "binary"
 
   // 81-90
@@ -299,36 +298,88 @@ object OrcSchema extends Logging{
   netflowFieldsTypes(82) = "binary"
   netflowFieldsTypes(83) = "binary"
   netflowFieldsTypes(84) = "binary"
-  netflowFieldsTypes(85) = "binary"
-  netflowFieldsTypes(86) = "binary"
+  netflowFieldsTypes(85) = "bigint"
+  netflowFieldsTypes(86) = "bigint"
   netflowFieldsTypes(87) = null // *Vendor Proprietary
-  netflowFieldsTypes(88) = "binary"
+  netflowFieldsTypes(88) = "int"
   netflowFieldsTypes(89) = "binary"
   netflowFieldsTypes(90) = "binary"
 
   // 91-100
-  netflowFieldsTypes(91) = "binary"
-  netflowFieldsTypes(92) = "binary"
-  netflowFieldsTypes(93) = "binary"
+  netflowFieldsTypes(91) = "int"
+  netflowFieldsTypes(92) = "bigint"
+  netflowFieldsTypes(93) = "bigint"
   netflowFieldsTypes(94) = "binary"
   netflowFieldsTypes(95) = "binary"
   netflowFieldsTypes(96) = "binary"
   netflowFieldsTypes(97) = null // *Vendor Proprietary
-  netflowFieldsTypes(98) = "binary"
-  netflowFieldsTypes(99) = "binary"
+  netflowFieldsTypes(98) = "int"
+  netflowFieldsTypes(99) = "bigint"
   netflowFieldsTypes(100) = "binary"
 
-  val overallSchema = headerFields.filter(_ != null) ++
-    bgpFields.filter(_ != null) ++ netflowFields.filter(_ != null)
+  val overallSchema = headerFields.filter(_ != null)  ++ netflowFields.filter(_ != null) ++
+    bgpFields.filter(_ != null)
 
   val overallSchemaTypes = headerFieldsTypes.filter(_ != null) ++
-  bgpFieldsTypes.filter(_ != null) ++
-    netflowFieldsTypes.filter(_ != null)
+    netflowFieldsTypes.filter(_ != null)++
+    bgpFieldsTypes.filter(_ != null)
 
   val bgpStartPos = (headerFields.filter(_ != null) ++
-    bgpFields.filter(_ != null)).length
+    netflowFields.filter(_ != null)).length
+
+  val netflowStartPos = headerFields.filter(_ != null).length
 
 
   val validBgp = bgpFields.filter(_ != null)
+
+  object FieldType extends Enumeration {
+    type FieldType = Value
+
+    val NETFLOW, BGP, HEADER = Value
+  }
+
+  val validHeader = headerFields.filter(_ != null)
+  val validNetflow = netflowFields.filter(_ != null)
+
+
+  // return position in overallSchema and the type of this index
+  def getPosAndType(ft: FieldType.Value, selfIndex: Int): (Int, String) = {
+
+    def checkSelfNull(types: Array[String]) = {
+      if (types(selfIndex) == null) throw new NetFlowException("Getting a invalid field")
+    }
+
+    def getNotNulls(types: Array[String]): Int = {
+      var num = 0
+      for (i <- 0 until selfIndex) {
+        if (types(i) != null) {
+          num += 1
+        }
+      }
+      num
+    }
+
+    try {
+      ft match {
+        case FieldType.HEADER =>
+          checkSelfNull(headerFields)
+          (getNotNulls(headerFields), headerFieldsTypes(selfIndex))
+
+        case FieldType.NETFLOW =>
+          checkSelfNull(netflowFields)
+          (validHeader.length + getNotNulls(netflowFields), netflowFieldsTypes(selfIndex))
+
+        case FieldType.BGP =>
+          checkSelfNull(bgpFields)
+          (validHeader.length + validNetflow.length + getNotNulls(bgpFields),
+            bgpFieldsTypes(selfIndex))
+      }
+
+    } catch {
+      case e: NetFlowException =>
+        logInfo(e.getMessage)
+        (-1, null)
+    }
+  }
 }
 
